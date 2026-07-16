@@ -9,15 +9,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"] ?? "");
     $password = $_POST["password"] ?? "";
 
-    $stmt = $pdo->prepare("SELECT id, name, password_hash FROM users WHERE email = :email");
+    $stmt = $pdo->prepare("SELECT user_id, name, password_hash, role, status FROM users WHERE email = :email");
     $stmt->execute(["email" => $email]);
     $user = $stmt->fetch();
 
-    if ($user && password_verify($password, $user["password_hash"])) {
-        $_SESSION["user_id"] = (int)$user["id"];
+    if ($user && $user["status"] === "active" && password_verify($password, $user["password_hash"])) {
+        $_SESSION["user_id"] = (int)$user["user_id"];
         $_SESSION["user_name"] = $user["name"];
-        header("Location: /trips/list.php");
-        exit;
+        $_SESSION["user_role"] = $user["role"];
+        redirectTo("/trips/list.php");
     }
 
     $message = "Invalid email or password.";
@@ -34,12 +34,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <?php endif; ?>
                 <form method="post">
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input class="form-control" type="email" name="email" required>
+                        <label class="form-label" for="login-email">Email</label>
+                        <input class="form-control" id="login-email" type="email" name="email" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input class="form-control" type="password" name="password" required>
+                        <label class="form-label" for="login-password">Password</label>
+                        <input class="form-control" id="login-password" type="password" name="password" required>
                     </div>
                     <button class="btn btn-primary w-100" type="submit">Login</button>
                 </form>

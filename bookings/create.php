@@ -2,53 +2,71 @@
 declare(strict_types=1);
 require_once __DIR__ . "/../config/db.php";
 require_once __DIR__ . "/../includes/auth.php";
-requireLogin();
+requireTraveler();
+
+const PACKAGES_LIST_PATH = "/trips/list.php";
+const MY_BOOKINGS_PATH = "/bookings/my_bookings.php";
+const PAYMENT_PAGE_PATH = "/payments/pay.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header("Location: /trips/list.php");
-    exit;
+    redirectTo(PACKAGES_LIST_PATH);
 }
 
-$tripId = (int)($_POST["trip_id"] ?? 0);
+$packageId = (int)($_POST["package_id"] ?? 0);
+$numTravelers = (int)($_POST["num_travelers"] ?? 1);
 $userId = (int)$_SESSION["user_id"];
 
-if ($tripId <= 0) {
-    header("Location: /trips/list.php");
-    exit;
+if ($packageId <= 0 || $numTravelers <= 0) {
+    redirectTo(PACKAGES_LIST_PATH);
 }
 
 $pdo->beginTransaction();
 try {
-    $tripStmt = $pdo->prepare("SELECT id, available_slots FROM trips WHERE id = :id FOR UPDATE");
-    $tripStmt->execute(["id" => $tripId]);
-    $trip = $tripStmt->fetch();
+    $pkgStmt = $pdo->prepare("SELECT package_id, available_slots, max_participants, price FROM packages WHERE package_id = :id FOR UPDATE");
+    $pkgStmt->execute(["id" => $packageId]);
+    $pkg = $pkgStmt->fetch();
 
-    if (!$trip || (int)$trip["available_slots"] <= 0) {
+    if (!$pkg || (int)$pkg["available_slots"] < $numTravelers) {
         $pdo->rollBack();
-        header("Location: /trips/list.php");
-        exit;
+        redirectTo(PACKAGES_LIST_PATH);
     }
 
-    $existsStmt = $pdo->prepare("SELECT id FROM bookings WHERE user_id = :user_id AND trip_id = :trip_id");
-    $existsStmt->execute(["user_id" => $userId, "trip_id" => $tripId]);
-    if ($existsStmt->fetch()) {
+    if ((int)$pkg["max_participants"] < $numTravelers) {
         $pdo->rollBack();
-        header("Location: /bookings/my_bookings.php");
-        exit;
+        redirectTo(PACKAGES_LIST_PATH);
     }
 
-    $bookStmt = $pdo->prepare("INSERT INTO bookings (user_id, trip_id) VALUES (:user_id, :trip_id)");
-    $bookStmt->execute(["user_id" => $userId, "trip_id" => $tripId]);
+    $totalPrice = (float)$pkg["price"] * $numTravelers;
 
-    $updateTrip = $pdo->prepare("UPDATE trips SET available_slots = available_slots - 1 WHERE id = :id");
-    $updateTrip->execute(["id" => $tripId]);
+    $bookStmt = $pdo->prepare(
+        "INSERT INTO bookings (user_id, package_id, num_travelers, total_price, status)
+         VALUES (:user_id, :package_id, :num_travelers, :total_price, 'pending')"
+    );
+    $bookStmt->execute([
+        "user_id" => $userId,
+        "package_id" => $packageId,
+        "num_travelers" => $numTravelers,
+        "total_price" => $totalPrice,
+    ]);
+    $bookingId = (int)$pdo->lastInsertId();
+
+    $payStmt = $pdo->prepare(
+        "INSERT INTO payments (booking_id, amount, payment_method, status, transaction_ref)
+         VALUES (:booking_id, :amount, :payment_method, 'pending', NULL)"
+    );
+    $payStmt->execute([
+        "booking_id" => $bookingId,
+        "amount" => $totalPrice,
+        "payment_method" => "mock_card",
+    ]);
 
     $pdo->commit();
+    setFlash("info", "Booking created. Please complete payment to confirm your trip.");
+    redirectTo(PAYMENT_PAGE_PATH . "?booking_id=" . $bookingId);
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
 }
 
-header("Location: /bookings/my_bookings.php");
-exit;
+redirectTo(MY_BOOKINGS_PATH);
