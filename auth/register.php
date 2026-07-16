@@ -39,32 +39,65 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 require_once __DIR__ . "/../includes/header.php";
 ?>
 
-<div class="row justify-content-center">
+<div class="row justify-content-center animate-slide-up" style="margin-top: 3vh;">
     <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="card-title mb-3">Register</h3>
+        <div class="card card-modern">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="feature-icon-modern mb-2">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">Create Account</h3>
+                    <p class="text-muted small">Sign up as a traveler to browse and book trips</p>
+                </div>
+
                 <?php if ($message !== ""): ?>
-                    <div class="alert alert-warning"><?= htmlspecialchars($message) ?></div>
+                    <div class="alert alert-warning border-0 shadow-sm rounded-3 d-flex align-items-center p-3 mb-4">
+                        <i class="fa-solid fa-triangle-exclamation me-3 fs-4 text-warning"></i>
+                        <div><?= htmlspecialchars($message) ?></div>
+                    </div>
                 <?php endif; ?>
+
                 <form method="post">
-                    <div class="mb-3">
-                        <label class="form-label" for="register-name">Name</label>
-                        <input class="form-control" id="register-name" name="name" required>
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-1">
+                            <label class="form-label small" for="register-name">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-signature text-muted"></i></span>
+                                <input class="form-control border-start-0 ps-0" id="register-name" name="name" placeholder="John Doe" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-1">
+                            <label class="form-label small" for="register-email">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-envelope text-muted"></i></span>
+                                <input class="form-control border-start-0 ps-0" id="register-email" type="email" name="email" placeholder="john@example.com" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-1">
+                            <label class="form-label small" for="register-phone">Phone Number <span class="text-muted">(optional)</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
+                                <input class="form-control border-start-0 ps-0" id="register-phone" name="phone" placeholder="+123456789">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small" for="register-password">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-key text-muted"></i></span>
+                                <input class="form-control border-start-0 ps-0" id="register-password" type="password" name="password" placeholder="••••••••" required>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="register-email">Email</label>
-                        <input class="form-control" id="register-email" type="email" name="email" required>
+
+                    <button class="btn btn-primary w-100 py-2.5 mt-4 mb-3" type="submit">
+                        <i class="fa-solid fa-user-plus me-1"></i> Register Account
+                    </button>
+                    
+                    <div class="text-center">
+                        <span class="text-muted small">Already have an account?</span>
+                        <a class="small fw-semibold text-primary text-decoration-none ms-1" href="<?= htmlspecialchars(appUrl('/auth/login.php')) ?>">Login here</a>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="register-phone">Phone (optional)</label>
-                        <input class="form-control" id="register-phone" name="phone">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="register-password">Password</label>
-                        <input class="form-control" id="register-password" type="password" name="password" required>
-                    </div>
-                    <button class="btn btn-primary w-100" type="submit">Create Account</button>
                 </form>
             </div>
         </div>

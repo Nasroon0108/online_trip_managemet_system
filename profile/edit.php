@@ -62,47 +62,76 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-<div class="row justify-content-center">
-    <div class="col-lg-7">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="mb-3">My Profile</h3>
+<div class="row justify-content-center animate-slide-up">
+    <div class="col-lg-6">
+        <div class="card card-modern">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="feature-icon-modern mb-2">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">My Profile</h3>
+                    <p class="text-muted small">Update your personal account credentials and password</p>
+                </div>
 
                 <?php if ($message !== ""): ?>
-                    <div class="alert alert-warning"><?= htmlspecialchars($message) ?></div>
+                    <div class="alert alert-warning border-0 shadow-sm rounded-3 d-flex align-items-center p-3 mb-4">
+                        <i class="fa-solid fa-triangle-exclamation me-3 fs-4 text-warning"></i>
+                        <div><?= htmlspecialchars($message) ?></div>
+                    </div>
                 <?php endif; ?>
 
                 <form method="post">
                     <div class="mb-3">
-                        <label class="form-label" for="profile-name">Name</label>
-                        <input class="form-control" id="profile-name" name="name" value="<?= htmlspecialchars($user["name"]) ?>" required>
+                        <label class="form-label small" for="profile-name">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-signature text-muted"></i></span>
+                            <input class="form-control border-start-0 ps-0" id="profile-name" name="name" value="<?= htmlspecialchars($user["name"]) ?>" required>
+                        </div>
                     </div>
+                    
                     <div class="mb-3">
-                        <label class="form-label" for="profile-email">Email</label>
-                        <input class="form-control" id="profile-email" type="email" value="<?= htmlspecialchars($user["email"]) ?>" disabled>
-                        <div class="form-text">Email cannot be changed in this version.</div>
+                        <label class="form-label small" for="profile-email">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-envelope text-muted"></i></span>
+                            <input class="form-control border-start-0 ps-0 bg-light" id="profile-email" type="email" value="<?= htmlspecialchars($user["email"]) ?>" disabled>
+                        </div>
+                        <div class="form-text small text-muted"><i class="fa-solid fa-lock me-1"></i>Email address cannot be changed.</div>
                     </div>
+                    
                     <div class="mb-3">
-                        <label class="form-label" for="profile-phone">Phone</label>
-                        <input class="form-control" id="profile-phone" name="phone" value="<?= htmlspecialchars((string)($user["phone"] ?? "")) ?>">
+                        <label class="form-label small" for="profile-phone">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
+                            <input class="form-control border-start-0 ps-0" id="profile-phone" name="phone" value="<?= htmlspecialchars((string)($user["phone"] ?? "")) ?>">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="profile-role">Role</label>
-                        <input class="form-control" id="profile-role" value="<?= htmlspecialchars($user["role"]) ?>" disabled>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small" for="profile-role">Account Role</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-shield text-muted"></i></span>
+                            <input class="form-control border-start-0 ps-0 bg-light" id="profile-role" value="<?= ucfirst(htmlspecialchars($user["role"])) ?>" disabled>
+                        </div>
                     </div>
 
-                    <hr>
-                    <h5 class="mb-3">Change Password (optional)</h5>
-                    <div class="mb-3">
-                        <label class="form-label" for="current-password">Current Password</label>
-                        <input class="form-control" id="current-password" type="password" name="current_password">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="new-password">New Password</label>
-                        <input class="form-control" id="new-password" type="password" name="new_password">
+                    <div class="p-3 bg-light rounded-3 mb-4 border border-light">
+                        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-key me-2 text-muted"></i>Change Password</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small" for="current-password">Current Password</label>
+                            <input class="form-control bg-white" id="current-password" type="password" name="current_password" placeholder="Enter current password">
+                        </div>
+                        
+                        <div class="mb-0">
+                            <label class="form-label small" for="new-password">New Password</label>
+                            <input class="form-control bg-white" id="new-password" type="password" name="new_password" placeholder="Enter new password (min. 6 chars)">
+                        </div>
                     </div>
 
-                    <button class="btn btn-primary" type="submit">Save Profile</button>
+                    <button class="btn btn-primary w-100 py-2.5" type="submit">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Save Profile Details
+                    </button>
                 </form>
             </div>
         </div>
