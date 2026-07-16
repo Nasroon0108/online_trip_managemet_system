@@ -43,67 +43,116 @@ $packagesStmt->execute();
 $packages = $packagesStmt->fetchAll();
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Available Packages</h3>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="mb-1 fw-bold">Explore Packages</h3>
+        <p class="text-muted mb-0">Find your next perfect destination from our curated travel list</p>
+    </div>
     <?php if (isAdmin()): ?>
-        <a class="btn btn-success" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">Manage Packages</a>
+        <a class="btn btn-primary shadow-sm" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">
+            <i class="fa-solid fa-cubes me-1"></i> Manage Packages
+        </a>
     <?php endif; ?>
 </div>
 
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-striped mb-0">
-            <thead>
-            <tr>
-                <th>Title</th>
-                <th>Destination</th>
-                <th>Date</th>
-                <th>Price</th>
-                <th>Rating</th>
-                <th>Slots</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($packages as $package): ?>
-                <tr>
-                    <td><?= htmlspecialchars($package["title"]) ?></td>
-                    <td><?= htmlspecialchars($package["destination_names"] ?? "—") ?></td>
-                    <td><?= htmlspecialchars($package["start_date"]) ?> to <?= htmlspecialchars($package["end_date"]) ?></td>
-                    <td>Rs. <?= htmlspecialchars((string)$package["price"]) ?></td>
-                    <td>
-                        <?php if ((int)$package["review_count"] > 0): ?>
-                            <?= number_format((float)$package["avg_rating"], 1) ?> ★ (<?= (int)$package["review_count"] ?>)
-                        <?php else: ?>
-                            —
-                        <?php endif; ?>
-                    </td>
-                    <td><?= htmlspecialchars((string)$package["available_slots"]) ?></td>
-                    <td>
-                        <a class="btn btn-outline-primary btn-sm" href="<?= htmlspecialchars(appUrl('/trips/view.php?id=' . (int)$package["package_id"])) ?>">View</a>
-                        <?php if (isTraveler()): ?>
-                            <form method="post" action="<?= htmlspecialchars(appUrl('/bookings/create.php')) ?>" class="d-inline">
-                                <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
-                                <input type="hidden" name="num_travelers" value="1">
-                                <button class="btn btn-primary btn-sm" type="submit">Quick Book</button>
-                            </form>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            <?php if (!$packages): ?>
-                <tr><td colspan="7" class="text-center text-muted py-3">No packages yet.</td></tr>
-            <?php endif; ?>
-            </tbody>
-        </table>
+<?php if (!$packages): ?>
+    <div class="card card-modern p-5 text-center my-4">
+        <div class="mb-3 text-muted">
+            <i class="fa-solid fa-suitcase-rolling fs-1"></i>
+        </div>
+        <h4 class="fw-bold">No Packages Available</h4>
+        <p class="text-muted">Check back later or contact admin to list packages.</p>
     </div>
-</div>
+<?php else: ?>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-4">
+        <?php foreach ($packages as $package): ?>
+            <div class="col">
+                <div class="card card-modern h-100 d-flex flex-column">
+                    <div class="card-decor-gradient position-relative">
+                        <div class="position-absolute top-0 start-0 m-3 badge bg-white text-dark shadow-sm py-2 px-3 rounded-pill d-flex align-items-center gap-1">
+                            <i class="fa-solid fa-location-dot text-primary"></i>
+                            <span class="fw-bold text-truncate" style="max-width: 140px;">
+                                <?= htmlspecialchars(explode(',', $package["destination_names"] ?? "World")[0]) ?>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-3 d-flex flex-column flex-grow-1">
+                        <div class="mb-2 text-muted small d-flex align-items-center gap-1">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span><?= date("M d, Y", strtotime($package["start_date"])) ?> - <?= date("M d, Y", strtotime($package["end_date"])) ?></span>
+                        </div>
+                        
+                        <h5 class="fw-bold mb-2 text-truncate-2" style="min-height: 48px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            <?= htmlspecialchars($package["title"]) ?>
+                        </h5>
+                        
+                        <p class="card-text text-muted small mb-3 text-truncate-2" style="min-height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            <i class="fa-solid fa-map me-1 text-secondary"></i>
+                            <?= htmlspecialchars($package["destination_names"] ?? "—") ?>
+                        </p>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <?php if ((int)$package["review_count"] > 0): ?>
+                                    <div class="text-warning small fw-bold">
+                                        <i class="fa-solid fa-star"></i>
+                                        <span class="text-dark"><?= number_format((float)$package["avg_rating"], 1) ?></span>
+                                        <span class="text-muted font-normal">(<?= (int)$package["review_count"] ?>)</span>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted small"><i class="fa-regular fa-star me-1"></i>No reviews</span>
+                                <?php endif; ?>
+                                
+                                <?php 
+                                $slots = (int)$package["available_slots"];
+                                if ($slots > 5): ?>
+                                    <span class="badge badge-custom badge-confirmed"><?= $slots ?> slots left</span>
+                                <?php elseif ($slots > 0): ?>
+                                    <span class="badge badge-custom badge-pending">Only <?= $slots ?> left</span>
+                                <?php else: ?>
+                                    <span class="badge badge-custom badge-cancelled">Sold Out</span>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-baseline mb-3">
+                                <span class="text-muted small">Price / traveler</span>
+                                <span class="fs-4 fw-bold text-primary">Rs. <?= number_format((float)$package["price"], 0) ?></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent border-0 p-3 pt-0 mt-auto d-flex gap-2">
+                        <a class="btn btn-outline-primary btn-sm flex-fill" href="<?= htmlspecialchars(appUrl('/trips/view.php?id=' . (int)$package["package_id"])) ?>">
+                            <i class="fa-solid fa-eye me-1"></i> Details
+                        </a>
+                        <?php if (isTraveler()): ?>
+                            <?php if ($slots > 0): ?>
+                                <form method="post" action="<?= htmlspecialchars(appUrl('/bookings/create.php')) ?>" class="d-inline flex-fill">
+                                    <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
+                                    <input type="hidden" name="num_travelers" value="1">
+                                    <button class="btn btn-primary btn-sm w-100" type="submit">
+                                        <i class="fa-solid fa-bolt me-1"></i> Book
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <button class="btn btn-secondary btn-sm flex-fill" disabled>Sold Out</button>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
 <?php if ($totalPages > 1): ?>
-    <nav class="mt-3" aria-label="Package pagination">
-        <ul class="pagination justify-content-center mb-0">
+    <nav class="mt-4" aria-label="Package pagination">
+        <ul class="pagination justify-content-center">
             <li class="page-item <?= $page <= 1 ? "disabled" : "" ?>">
-                <a class="page-link" href="<?= htmlspecialchars(appUrl(LIST_PAGE_PATH . ($page - 1))) ?>">Previous</a>
+                <a class="page-link" href="<?= htmlspecialchars(appUrl(LIST_PAGE_PATH . ($page - 1))) ?>">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
             </li>
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <li class="page-item <?= $i === $page ? "active" : "" ?>">
@@ -111,7 +160,9 @@ $packages = $packagesStmt->fetchAll();
                 </li>
             <?php endfor; ?>
             <li class="page-item <?= $page >= $totalPages ? "disabled" : "" ?>">
-                <a class="page-link" href="<?= htmlspecialchars(appUrl(LIST_PAGE_PATH . ($page + 1))) ?>">Next</a>
+                <a class="page-link" href="<?= htmlspecialchars(appUrl(LIST_PAGE_PATH . ($page + 1))) ?>">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
             </li>
         </ul>
     </nav>
