@@ -32,57 +32,103 @@ $stmt->execute(["user_id" => (int)$_SESSION["user_id"]]);
 $bookings = $stmt->fetchAll();
 ?>
 
-<h3 class="mb-3">My Bookings</h3>
-<div class="card shadow-sm">
+<div class="mb-4 animate-slide-up">
+    <h3 class="fw-bold mb-1">My Bookings</h3>
+    <p class="text-muted">Track your booked itineraries, payment logs, and trip statuses</p>
+</div>
+
+<div class="card card-modern animate-slide-up">
     <div class="table-responsive">
-        <table class="table table-striped mb-0">
+        <table class="table table-modern table-hover align-middle mb-0">
             <thead>
-            <tr>
+                <tr>
                     <th>Package</th>
                     <th>Destination</th>
-                    <th>Travel Date</th>
-                    <th>Travelers</th>
-                    <th>Total</th>
-                    <th>Status</th>
+                    <th>Travel Dates</th>
+                    <th class="text-center">Travelers</th>
+                    <th>Total Price</th>
+                    <th>Booking Status</th>
                     <th>Payment</th>
                     <th>Booked On</th>
-                    <th>Actions</th>
-            </tr>
+                    <th class="text-end">Actions</th>
+                </tr>
             </thead>
             <tbody>
             <?php foreach ($bookings as $booking): ?>
                 <tr>
-                    <td><?= htmlspecialchars($booking["title"]) ?></td>
-                    <td><?= htmlspecialchars($booking["destination_names"] ?? "—") ?></td>
-                    <td><?= htmlspecialchars($booking["start_date"]) ?> to <?= htmlspecialchars($booking["end_date"]) ?></td>
-                    <td><?= htmlspecialchars((string)$booking["num_travelers"]) ?></td>
-                    <td>Rs. <?= htmlspecialchars((string)$booking["total_price"]) ?></td>
                     <td>
-                        <?php $status = $booking["status"] ?? "pending"; ?>
-                        <span class="<?= bookingStatusClass($status) ?>"><?= htmlspecialchars($status) ?></span>
+                        <div class="fw-bold text-dark"><?= htmlspecialchars($booking["title"]) ?></div>
+                        <span class="text-muted small">ID: #<?= (int)$booking["booking_id"] ?></span>
                     </td>
-                    <td><?= htmlspecialchars($booking["payment_status"]) ?></td>
-                    <td><?= htmlspecialchars($booking["booking_date"]) ?></td>
-                    <td class="text-nowrap">
-                        <?php if ($booking["status"] === "pending" && $booking["payment_status"] === "pending"): ?>
-                            <a class="btn btn-sm btn-outline-primary" href="<?= htmlspecialchars(appUrl('/payments/pay.php?booking_id=' . (int)$booking["booking_id"])) ?>">Pay Now</a>
+                    <td>
+                        <div class="small text-muted text-truncate" style="max-width: 180px;">
+                            <i class="fa-solid fa-map-pin me-1 text-primary"></i><?= htmlspecialchars($booking["destination_names"] ?? "—") ?>
+                        </div>
+                    </td>
+                    <td class="small">
+                        <div><?= date("M d, Y", strtotime($booking["start_date"])) ?></div>
+                        <div class="text-muted">to <?= date("M d, Y", strtotime($booking["end_date"])) ?></div>
+                    </td>
+                    <td class="text-center fw-semibold"><?= htmlspecialchars((string)$booking["num_travelers"]) ?></td>
+                    <td class="fw-bold text-primary">Rs. <?= number_format((float)$booking["total_price"], 2) ?></td>
+                    <td>
+                        <?php 
+                        $status = $booking["status"] ?? "pending";
+                        $badgeClass = match ($status) {
+                            "confirmed" => "badge-confirmed",
+                            "completed" => "badge-completed",
+                            "cancelled" => "badge-cancelled",
+                            default => "badge-pending",
+                        };
+                        ?>
+                        <span class="badge badge-custom <?= $badgeClass ?>"><?= ucfirst(htmlspecialchars($status)) ?></span>
+                    </td>
+                    <td>
+                        <?php 
+                        $payStatus = $booking["payment_status"] ?? "pending";
+                        if ($payStatus === "success"): ?>
+                            <span class="badge bg-success-subtle text-success py-1.5 px-2.5 rounded-pill small"><i class="fa-solid fa-circle-check me-1"></i>Paid</span>
+                        <?php elseif ($payStatus === "failed"): ?>
+                            <span class="badge bg-danger-subtle text-danger py-1.5 px-2.5 rounded-pill small"><i class="fa-solid fa-circle-xmark me-1"></i>Failed</span>
+                        <?php else: ?>
+                            <span class="badge bg-warning-subtle text-warning py-1.5 px-2.5 rounded-pill small"><i class="fa-solid fa-clock me-1"></i>Unpaid</span>
                         <?php endif; ?>
+                    </td>
+                    <td class="small text-muted"><?= date("M d, Y", strtotime($booking["booking_date"])) ?></td>
+                    <td class="text-end text-nowrap">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <?php if ($booking["status"] === "pending" && $booking["payment_status"] === "pending"): ?>
+                                <a class="btn btn-sm btn-primary" href="<?= htmlspecialchars(appUrl('/payments/pay.php?booking_id=' . (int)$booking["booking_id"])) ?>">
+                                    <i class="fa-solid fa-credit-card me-1"></i> Pay Now
+                                </a>
+                            <?php endif; ?>
 
-                        <?php if (in_array($booking["status"], ["pending", "confirmed"], true)): ?>
-                            <form method="post" action="<?= htmlspecialchars(appUrl('/bookings/cancel.php')) ?>" class="d-inline">
-                                <input type="hidden" name="booking_id" value="<?= (int)$booking["booking_id"] ?>">
-                                <button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button>
-                            </form>
-                        <?php endif; ?>
+                            <?php if (in_array($booking["status"], ["pending", "confirmed"], true)): ?>
+                                <form method="post" action="<?= htmlspecialchars(appUrl('/bookings/cancel.php')) ?>" class="d-inline">
+                                    <input type="hidden" name="booking_id" value="<?= (int)$booking["booking_id"] ?>">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                        <i class="fa-solid fa-ban me-1"></i> Cancel
+                                    </button>
+                                </form>
+                            <?php endif; ?>
 
-                        <?php if ($booking["status"] === "completed" && empty($booking["review_id"])): ?>
-                            <a class="btn btn-sm btn-outline-success" href="<?= htmlspecialchars(appUrl('/reviews/create.php?package_id=' . (int)$booking["package_id"])) ?>">Review</a>
-                        <?php endif; ?>
+                            <?php if ($booking["status"] === "completed" && empty($booking["review_id"])): ?>
+                                <a class="btn btn-sm btn-outline-success" href="<?= htmlspecialchars(appUrl('/reviews/create.php?package_id=' . (int)$booking["package_id"])) ?>">
+                                    <i class="fa-solid fa-star me-1"></i> Review
+                                </a>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
             <?php endforeach; ?>
             <?php if (!$bookings): ?>
-                <tr><td colspan="9" class="text-center text-muted py-3">No bookings yet.</td></tr>
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-5">
+                        <div class="mb-2"><i class="fa-solid fa-receipt fs-2"></i></div>
+                        <div>No bookings found.</div>
+                        <a href="<?= htmlspecialchars(appUrl('/trips/list.php')) ?>" class="btn btn-primary btn-sm mt-3">Book Your First Trip</a>
+                    </td>
+                </tr>
             <?php endif; ?>
             </tbody>
         </table>
