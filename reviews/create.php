@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../config/db.php";
-require_once __DIR__ . "/../includes/header.php";
+require_once __DIR__ . "/../includes/auth.php";
 requireTraveler();
+require_once __DIR__ . "/../includes/header.php";
 
 const BOOKINGS_PAGE_PATH = "/bookings/my_bookings.php";
 
@@ -62,34 +63,54 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-<div class="row justify-content-center">
+<div class="row justify-content-center animate-slide-up">
     <div class="col-lg-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="mb-3">Write a Review</h3>
-                <p class="text-muted">Package: <strong><?= htmlspecialchars($package["title"]) ?></strong></p>
+        <div class="card card-modern">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="feature-icon-modern mb-2">
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">Write a Review</h3>
+                    <p class="text-muted small">Share your thoughts on the package <strong><?= htmlspecialchars($package["title"]) ?></strong></p>
+                </div>
 
                 <?php if ($message !== ""): ?>
-                    <div class="alert alert-warning"><?= htmlspecialchars($message) ?></div>
+                    <div class="alert alert-warning border-0 shadow-sm rounded-3 d-flex align-items-center p-3 mb-4">
+                        <i class="fa-solid fa-triangle-exclamation me-3 fs-4 text-warning"></i>
+                        <div><?= htmlspecialchars($message) ?></div>
+                    </div>
                 <?php endif; ?>
 
                 <form method="post">
                     <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
+                    
                     <div class="mb-3">
-                        <label class="form-label" for="rating">Rating (1–5)</label>
-                        <select class="form-select" id="rating" name="rating" required>
-                            <option value="">Select rating</option>
-                            <?php for ($i = 5; $i >= 1; $i--): ?>
-                                <option value="<?= $i ?>"><?= $i ?> star<?= $i > 1 ? "s" : "" ?></option>
-                            <?php endfor; ?>
-                        </select>
+                        <label class="form-label small" for="rating">Star Rating</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-star text-warning"></i></span>
+                            <select class="form-select border-start-0 ps-0" id="rating" name="rating" required>
+                                <option value="">Select your rating...</option>
+                                <?php for ($i = 5; $i >= 1; $i--): ?>
+                                    <option value="<?= $i ?>"><?= $i ?> Star<?= $i > 1 ? "s" : "" ?> &mdash; <?= match($i) { 5 => 'Excellent', 4 => 'Good', 3 => 'Average', 2 => 'Poor', 1 => 'Terrible' } ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="comment">Comment</label>
-                        <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Share your experience..."></textarea>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small" for="comment">Your Comment</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="5" placeholder="Tell us what you liked, what could be improved, and your overall experience..." required></textarea>
                     </div>
-                    <button class="btn btn-primary" type="submit">Submit Review</button>
-                    <a class="btn btn-secondary" href="<?= htmlspecialchars(appUrl(BOOKINGS_PAGE_PATH)) ?>">Cancel</a>
+
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-primary flex-fill py-2.5" type="submit">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Submit Review
+                        </button>
+                        <a class="btn btn-outline-secondary flex-fill py-2.5" href="<?= htmlspecialchars(appUrl(BOOKINGS_PAGE_PATH)) ?>">
+                            <i class="fa-solid fa-xmark me-1"></i> Cancel
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>

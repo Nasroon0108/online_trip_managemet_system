@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../config/db.php";
-require_once __DIR__ . "/../includes/header.php";
+require_once __DIR__ . "/../includes/auth.php";
 requireLogin();
+require_once __DIR__ . "/../includes/header.php";
 
 const PER_PAGE = 8;
 const LIST_PAGE_PATH = "/trips/list.php?page=";
@@ -129,6 +130,7 @@ $packages = $packagesStmt->fetchAll();
                         <?php if (isTraveler()): ?>
                             <?php if ($slots > 0): ?>
                                 <form method="post" action="<?= htmlspecialchars(appUrl('/bookings/create.php')) ?>" class="d-inline flex-fill">
+                                    <?= csrfField() ?>
                                     <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
                                     <input type="hidden" name="num_travelers" value="1">
                                     <button class="btn btn-primary btn-sm w-100" type="submit">

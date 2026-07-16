@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../../config/db.php";
-require_once __DIR__ . "/../../includes/header.php";
+require_once __DIR__ . "/../../includes/auth.php";
 requireAdmin();
+require_once __DIR__ . "/../../includes/header.php";
 
 $destinationId = (int)($_GET["id"] ?? $_POST["destination_id"] ?? 0);
 if ($destinationId <= 0) {

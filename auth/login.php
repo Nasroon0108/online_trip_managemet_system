@@ -1,7 +1,11 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../config/db.php";
-require_once __DIR__ . "/../includes/header.php";
+require_once __DIR__ . "/../includes/auth.php";
+
+if (isLoggedIn()) {
+    redirectTo(dashboardPath());
+}
 
 $message = "";
 
@@ -17,13 +21,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["user_id"] = (int)$user["user_id"];
         $_SESSION["user_name"] = $user["name"];
         $_SESSION["user_role"] = $user["role"];
-        redirectTo("/trips/list.php");
+        redirectTo(dashboardPath());
     }
 
     $message = "Invalid email or password.";
 }
+
+require_once __DIR__ . "/../includes/header.php";
 ?>
 
+<div class="container py-4">
 <div class="row justify-content-center animate-slide-up" style="margin-top: 5vh;">
     <div class="col-md-5">
         <div class="card card-modern">
@@ -74,6 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <?php require_once __DIR__ . "/../includes/footer.php"; ?>

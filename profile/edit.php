@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../config/db.php";
-require_once __DIR__ . "/../includes/header.php";
+require_once __DIR__ . "/../includes/auth.php";
 requireLogin();
+require_once __DIR__ . "/../includes/header.php";
 
 $userId = (int)$_SESSION["user_id"];
 $message = "";

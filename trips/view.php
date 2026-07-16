@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../config/db.php";
-require_once __DIR__ . "/../includes/header.php";
+require_once __DIR__ . "/../includes/auth.php";
 requireLogin();
+require_once __DIR__ . "/../includes/header.php";
 
 const PACKAGES_LIST_PATH = "/trips/list.php";
 
@@ -229,6 +230,7 @@ if (isTraveler()) {
             <?php else: ?>
                 <p class="text-muted small mb-3"><i class="fa-solid fa-shield-halved me-1 text-primary"></i>Bookings stay pending until mock payment is complete.</p>
                 <form method="post" action="<?= htmlspecialchars(appUrl('/bookings/create.php')) ?>">
+                    <?= csrfField() ?>
                     <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
                     <div class="mb-3">
                         <label class="form-label small" for="num-travelers">Number of Travelers</label>

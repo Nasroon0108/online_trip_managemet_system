@@ -1,110 +1,164 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/auth.php";
+
+$currentUri = $_SERVER["REQUEST_URI"] ?? "";
+$isLinkActive = function (string $path) use ($currentUri): string {
+    return str_contains($currentUri, $path) ? "active" : "";
+};
+$useAppShell = isLoggedIn();
+$homeHref = $useAppShell ? appUrl(dashboardPath()) : appUrl("/index.php");
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TripEase - Online Trip Management System</title>
+    <title>TripEase — Online Trip Management</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="<?= htmlspecialchars(appUrl('/assets/css/style.css')) ?>" rel="stylesheet">
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-light navbar-glass sticky-top mb-4">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="<?= htmlspecialchars(appUrl('/index.php')) ?>">
-            <i class="fa-solid fa-compass text-primary me-2"></i>
-            <span>TripEase</span>
-        </a>
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="menu">
-            <ul class="navbar-nav me-auto">
-                <?php if (isLoggedIn()): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= htmlspecialchars(appUrl('/trips/list.php')) ?>">
-                            <i class="fa-solid fa-plane-departure me-1"></i> Packages
-                        </a>
-                    </li>
-                    <?php if (!isAdmin()): ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?= htmlspecialchars(appUrl('/bookings/my_bookings.php')) ?>">
-                                <i class="fa-solid fa-suitcase me-1"></i> My Bookings
-                            </a>
-                        </li>
-                    <?php endif; ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= htmlspecialchars(appUrl('/profile/edit.php')) ?>">
-                            <i class="fa-solid fa-user me-1"></i> Profile
-                        </a>
-                    </li>
-                    <?php if (isAdmin()): ?>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fa-solid fa-user-gear me-1"></i> Admin Portal
-                            </a>
-                            <ul class="dropdown-menu border-0 shadow-sm rounded-3 mt-2">
-                                <li><a class="dropdown-item py-2" href="<?= htmlspecialchars(appUrl('/admin/index.php')) ?>"><i class="fa-solid fa-chart-line me-2 text-muted"></i>Dashboard</a></li>
-                                <li><a class="dropdown-item py-2" href="<?= htmlspecialchars(appUrl('/admin/destinations/list.php')) ?>"><i class="fa-solid fa-map-location-dot me-2 text-muted"></i>Destinations</a></li>
-                                <li><a class="dropdown-item py-2" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>"><i class="fa-solid fa-cubes me-2 text-muted"></i>Manage Packages</a></li>
-                                <li><a class="dropdown-item py-2" href="<?= htmlspecialchars(appUrl('/admin/bookings/list.php')) ?>"><i class="fa-solid fa-receipt me-2 text-muted"></i>Manage Bookings</a></li>
-                                <li><a class="dropdown-item py-2" href="<?= htmlspecialchars(appUrl('/admin/users/list.php')) ?>"><i class="fa-solid fa-users me-2 text-muted"></i>Manage Users</a></li>
-                            </ul>
-                        </li>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </ul>
-            <div class="d-flex align-items-center gap-2">
-                <?php if (isLoggedIn()): ?>
-                    <span class="text-dark me-2 small align-self-center">
-                        <i class="fa-solid fa-circle-user text-primary me-1"></i>
-                        <strong><?= htmlspecialchars($_SESSION["user_name"] ?? "User") ?></strong>
-                        <span class="badge bg-primary-subtle text-primary ms-1" style="font-size: 0.75rem;"><?= htmlspecialchars(currentUserRole()) ?></span>
-                    </span>
-                    <a class="btn btn-outline-danger btn-sm" href="<?= htmlspecialchars(appUrl('/auth/logout.php')) ?>">
-                        <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
-                    </a>
-                <?php else: ?>
-                    <a class="btn btn-outline-primary btn-sm" href="<?= htmlspecialchars(appUrl('/auth/login.php')) ?>">
-                        <i class="fa-solid fa-right-to-bracket me-1"></i> Login
-                    </a>
-                    <a class="btn btn-primary btn-sm text-white" href="<?= htmlspecialchars(appUrl('/auth/register.php')) ?>">
-                        <i class="fa-solid fa-user-plus me-1"></i> Register
-                    </a>
-                <?php endif; ?>
-            </div>
+<body class="<?= $useAppShell ? "app-body" : "public-body" ?>">
+
+<?php if (!$useAppShell): ?>
+    <header class="public-topbar">
+        <div class="container d-flex align-items-center justify-content-between py-3">
+            <a class="public-brand text-decoration-none" href="<?= htmlspecialchars(appUrl('/index.php')) ?>">
+                TripEase
+            </a>
+            <a class="btn btn-brand btn-sm px-3" href="<?= htmlspecialchars(appUrl('/auth/register.php')) ?>">Create account</a>
         </div>
-    </div>
-</nav>
-<?php $flash = consumeFlash(); ?>
-<?php if ($flash): ?>
-    <?php 
-    $alertClass = match($flash["type"]) {
-        "success" => "alert-success",
-        "danger" => "alert-danger",
-        "warning" => "alert-warning",
-        default => "alert-info"
-    };
-    $alertIcon = match($flash["type"]) {
-        "success" => "fa-circle-check text-success",
-        "danger" => "fa-circle-xmark text-danger",
-        "warning" => "fa-triangle-exclamation text-warning",
-        default => "fa-circle-info text-info"
-    };
-    ?>
-    <div class="container mt-3">
-        <div class="alert <?= $alertClass ?> d-flex align-items-center shadow-sm border-0 rounded-4 p-3 animate-slide-up" role="alert">
-            <i class="fa-solid <?= $alertIcon ?> fs-4 me-3"></i>
-            <div>
+    </header>
+
+    <?php $flash = consumeFlash(); ?>
+    <?php if ($flash): ?>
+        <?php
+        $alertClass = match ($flash["type"]) {
+            "success" => "alert-success",
+            "danger" => "alert-danger",
+            "warning" => "alert-warning",
+            default => "alert-info",
+        };
+        ?>
+        <div class="container mt-3">
+            <div class="alert <?= $alertClass ?> border-0 shadow-sm rounded-3 mb-0">
                 <?= htmlspecialchars($flash["message"]) ?>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
+
+    <main class="public-main">
+<?php else: ?>
+    <div class="sidebar-layout">
+        <div class="mobile-top-bar w-100">
+            <a class="sidebar-brand" href="<?= htmlspecialchars($homeHref) ?>">TripEase</a>
+            <button class="btn btn-outline-secondary border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                <i class="fa-solid fa-bars fs-5"></i>
+            </button>
+        </div>
+
+        <div class="offcanvas-lg offcanvas-start app-sidebar" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+            <div class="sidebar-header d-flex justify-content-between align-items-center">
+                <a class="sidebar-brand" id="sidebarMenuLabel" href="<?= htmlspecialchars($homeHref) ?>">TripEase</a>
+                <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
+            </div>
+
+            <div class="sidebar-menu">
+                <nav class="nav flex-column">
+                    <?php if (isTraveler()): ?>
+                        <div class="sidebar-heading">Traveler</div>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/trips/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/trips/list.php')) ?>">
+                            <i class="fa-solid fa-map"></i> Browse Packages
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/bookings/') || $isLinkActive('/payments/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/bookings/my_bookings.php')) ?>">
+                            <i class="fa-solid fa-ticket"></i> My Bookings
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/profile/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/profile/edit.php')) ?>">
+                            <i class="fa-solid fa-user"></i> Profile
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if (isAgent()): ?>
+                        <div class="sidebar-heading">Agent Workspace</div>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/agent/index.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/agent/index.php')) ?>">
+                            <i class="fa-solid fa-briefcase"></i> Dashboard
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/agent/packages.php') || $isLinkActive('/admin/itineraries/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/agent/packages.php')) ?>">
+                            <i class="fa-solid fa-route"></i> Assigned Packages
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/agent/bookings.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/agent/bookings.php')) ?>">
+                            <i class="fa-solid fa-clipboard-check"></i> Assigned Bookings
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/trips/list.php') || $isLinkActive('/trips/view.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/trips/list.php')) ?>">
+                            <i class="fa-solid fa-eye"></i> Preview Packages
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/profile/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/profile/edit.php')) ?>">
+                            <i class="fa-solid fa-user"></i> Profile
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if (isAdmin()): ?>
+                        <div class="sidebar-heading">Admin Console</div>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/admin/index.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/index.php')) ?>">
+                            <i class="fa-solid fa-gauge-high"></i> Dashboard
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/admin/destinations/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/destinations/list.php')) ?>">
+                            <i class="fa-solid fa-location-dot"></i> Destinations
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/admin/packages/') || $isLinkActive('/admin/itineraries/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">
+                            <i class="fa-solid fa-box-open"></i> Packages
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/admin/bookings/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/bookings/list.php')) ?>">
+                            <i class="fa-solid fa-clipboard-list"></i> Bookings
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/admin/users/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/users/list.php')) ?>">
+                            <i class="fa-solid fa-users"></i> Users & Roles
+                        </a>
+                        <div class="sidebar-heading">Quick Links</div>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/trips/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/trips/list.php')) ?>">
+                            <i class="fa-solid fa-eye"></i> Preview Site
+                        </a>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/profile/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/profile/edit.php')) ?>">
+                            <i class="fa-solid fa-user"></i> Profile
+                        </a>
+                    <?php endif; ?>
+                </nav>
+            </div>
+
+            <div class="sidebar-profile">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="avatar-circle me-2"><?= strtoupper(substr($_SESSION["user_name"] ?? "U", 0, 1)) ?></div>
+                    <div class="overflow-hidden">
+                        <div class="fw-semibold text-truncate" style="max-width: 160px;"><?= htmlspecialchars($_SESSION["user_name"] ?? "User") ?></div>
+                        <span class="badge badge-role badge-role-<?= htmlspecialchars(currentUserRole()) ?>"><?= htmlspecialchars(currentUserRole()) ?></span>
+                    </div>
+                </div>
+                <a class="btn btn-outline-danger btn-sm sidebar-footer-btn" href="<?= htmlspecialchars(appUrl('/auth/logout.php')) ?>">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <?php $flash = consumeFlash(); ?>
+            <?php if ($flash): ?>
+                <?php
+                $alertClass = match ($flash["type"]) {
+                    "success" => "alert-success",
+                    "danger" => "alert-danger",
+                    "warning" => "alert-warning",
+                    default => "alert-info",
+                };
+                ?>
+                <div class="container-fluid px-4 mt-4">
+                    <div class="alert <?= $alertClass ?> border-0 shadow-sm rounded-3 mb-0">
+                        <?= htmlspecialchars($flash["message"]) ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <main class="container-fluid p-4 pb-5">
 <?php endif; ?>
-<main class="container pb-5">

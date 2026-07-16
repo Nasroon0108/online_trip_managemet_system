@@ -13,14 +13,18 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 verifyCsrf($_POST["csrf_token"] ?? null);
 
 $userId = (int)($_POST["user_id"] ?? 0);
-$status = $_POST["status"] ?? "";
+$role = $_POST["role"] ?? "";
 
-if ($userId > 0 && $userId !== (int)$_SESSION["user_id"] && in_array($status, ["active", "inactive"], true)) {
-    $stmt = $pdo->prepare("UPDATE users SET status = :status WHERE user_id = :user_id");
+if ($userId > 0
+    && $userId !== (int)$_SESSION["user_id"]
+    && in_array($role, ["traveler", "admin", "agent"], true)
+) {
+    $stmt = $pdo->prepare("UPDATE users SET role = :role WHERE user_id = :user_id");
     $stmt->execute([
-        "status" => $status,
+        "role" => $role,
         "user_id" => $userId,
     ]);
+    setFlash("success", "User role updated.");
 }
 
 redirectTo(USERS_PAGE_PATH);

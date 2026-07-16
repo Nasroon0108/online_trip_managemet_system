@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../config/db.php";
+require_once __DIR__ . "/../includes/auth.php";
+requireTraveler();
 require_once __DIR__ . "/../includes/header.php";
-requireLogin();
 
 $stmt = $pdo->prepare(
     "SELECT
@@ -105,6 +106,7 @@ $bookings = $stmt->fetchAll();
 
                             <?php if (in_array($booking["status"], ["pending", "confirmed"], true)): ?>
                                 <form method="post" action="<?= htmlspecialchars(appUrl('/bookings/cancel.php')) ?>" class="d-inline">
+                                    <?= csrfField() ?>
                                     <input type="hidden" name="booking_id" value="<?= (int)$booking["booking_id"] ?>">
                                     <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Are you sure you want to cancel this booking?');">
                                         <i class="fa-solid fa-ban me-1"></i> Cancel

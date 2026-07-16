@@ -34,9 +34,23 @@ A web-based trip planning and booking platform built with PHP, MySQL, and Bootst
 4. Start Apache and MySQL in XAMPP.
 5. Open: `http://localhost/online_trip_managemet_system/index.php`
 
-## Default Admin Login
-- Email: `admin@tripease.local`
-- Password: `admin123`
+## Default Accounts
+- Admin: `admin@tripease.local` / `admin123`
+- Agent: `agent@tripease.local` / `agent123`
+- Traveler: `traveler@tripease.local` / `traveler123`
+
+## Demo Data Included
+- 6 destinations (Munnar, Alleppey, Jaipur, Udaipur, Goa, Manali)
+- 4 packages with day-by-day itineraries
+- Agent assigned to Kerala, Rajasthan, and Manali packages
+- Sample traveler booking (confirmed Goa + completed Kerala with review)
+
+## Roles
+| Role | Access |
+|---|---|
+| Traveler | Browse packages, book, pay, review, profile |
+| Agent | Assigned packages, itinerary management |
+| Admin | Full console: destinations, packages, bookings, users, reports |
 
 ## Suggested Test Flow
 1. Login as admin and create destinations + packages + itinerary items.

@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../../config/db.php";
-require_once __DIR__ . "/../../includes/header.php";
+require_once __DIR__ . "/../../includes/auth.php";
 requireAdmin();
+require_once __DIR__ . "/../../includes/header.php";
 
 $packages = $pdo->query(
     "SELECT
@@ -54,6 +55,7 @@ $packages = $pdo->query(
                     <td><?= htmlspecialchars($package["status"]) ?></td>
                     <td class="text-nowrap">
                         <a class="btn btn-sm btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/admin/itineraries/manage.php?package_id=' . (int)$package["package_id"])) ?>">Itinerary</a>
+                        <a class="btn btn-sm btn-outline-info" href="<?= htmlspecialchars(appUrl('/admin/packages/assign_agents.php?package_id=' . (int)$package["package_id"])) ?>">Agents</a>
                         <a class="btn btn-sm btn-outline-primary" href="<?= htmlspecialchars(appUrl('/admin/packages/edit.php?id=' . (int)$package["package_id"])) ?>">Edit</a>
                         <form method="post" action="<?= htmlspecialchars(appUrl('/admin/packages/toggle_status.php')) ?>" class="d-inline">
                             <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">

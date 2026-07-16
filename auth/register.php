@@ -3,6 +3,10 @@ declare(strict_types=1);
 require_once __DIR__ . "/../config/db.php";
 require_once __DIR__ . "/../includes/auth.php";
 
+if (isLoggedIn()) {
+    redirectTo(dashboardPath());
+}
+
 $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -10,6 +14,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"] ?? "");
     $phone = trim($_POST["phone"] ?? "");
     $password = $_POST["password"] ?? "";
+    $role = $_POST["role"] ?? "traveler";
+
+    if (!in_array($role, ["traveler", "agent"], true)) {
+        $role = "traveler";
+    }
 
     if ($name === "" || $email === "" || $password === "") {
         $message = "All fields are required.";
@@ -22,15 +31,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             $stmt = $pdo->prepare(
                 "INSERT INTO users (name, email, password_hash, phone, role, status)
-                 VALUES (:name, :email, :password_hash, :phone, 'traveler', 'active')"
+                 VALUES (:name, :email, :password_hash, :phone, :role, 'active')"
             );
             $stmt->execute([
                 "name" => $name,
                 "email" => $email,
                 "password_hash" => password_hash($password, PASSWORD_DEFAULT),
                 "phone" => $phone !== "" ? $phone : null,
+                "role" => $role,
             ]);
-            setFlash("success", "Account created. Please log in.");
+            $roleLabel = $role === "agent" ? "agent" : "traveler";
+            setFlash("success", "Account created as {$roleLabel}. Please log in.");
             redirectTo("/auth/login.php");
         }
     }
@@ -39,6 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 require_once __DIR__ . "/../includes/header.php";
 ?>
 
+<div class="container py-4">
 <div class="row justify-content-center animate-slide-up" style="margin-top: 3vh;">
     <div class="col-md-6">
         <div class="card card-modern">
@@ -48,7 +60,7 @@ require_once __DIR__ . "/../includes/header.php";
                         <i class="fa-solid fa-user-plus"></i>
                     </div>
                     <h3 class="fw-bold text-dark">Create Account</h3>
-                    <p class="text-muted small">Sign up as a traveler to browse and book trips</p>
+                    <p class="text-muted small">Sign up as a traveler or trip agent</p>
                 </div>
 
                 <?php if ($message !== ""): ?>
@@ -59,6 +71,15 @@ require_once __DIR__ . "/../includes/header.php";
                 <?php endif; ?>
 
                 <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label small" for="register-role">Account type</label>
+                        <select class="form-select" id="register-role" name="role" required>
+                            <option value="traveler" selected>Traveler — browse and book trips</option>
+                            <option value="agent">Trip Agent — manage assigned packages</option>
+                        </select>
+                        <div class="form-text">Admin accounts are created by an existing admin only.</div>
+                    </div>
+
                     <div class="row g-3">
                         <div class="col-md-6 mb-1">
                             <label class="form-label small" for="register-name">Full Name</label>
@@ -102,6 +123,7 @@ require_once __DIR__ . "/../includes/header.php";
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <?php require_once __DIR__ . "/../includes/footer.php"; ?>

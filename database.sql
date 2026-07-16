@@ -127,13 +127,110 @@ CREATE TABLE IF NOT EXISTS agent_assignments (
     CONSTRAINT fk_assignments_package FOREIGN KEY (package_id) REFERENCES packages(package_id) ON DELETE CASCADE
 );
 
-INSERT INTO users (name, email, password_hash, role, status)
-SELECT
-    'System Admin',
-    'admin@tripease.local',
-    '$2y$10$nxWTaiW.fYZ9YgPt/VA9/.RTxckKYLnr1qDvrlXJbUFLXTX9D3fIq',
-    'admin',
-    'active'
-WHERE NOT EXISTS (
-    SELECT 1 FROM users WHERE email = 'admin@tripease.local'
+INSERT INTO users (name, email, password_hash, role, status) VALUES
+('System Admin', 'admin@tripease.local', '$2y$10$nxWTaiW.fYZ9YgPt/VA9/.RTxckKYLnr1qDvrlXJbUFLXTX9D3fIq', 'admin', 'active');
+
+INSERT INTO users (name, email, password_hash, phone, role, status) VALUES
+('Trip Agent', 'agent@tripease.local', '$2y$10$VTZ.mvoCZkytUcBSJOev3uTdfxFiJY66GCOVPeblXlTcs7WSwbUNG', '9876543210', 'agent', 'active');
+
+INSERT INTO users (name, email, password_hash, phone, role, status) VALUES
+('Aisha Traveler', 'traveler@tripease.local', '$2y$10$CvhWnE2FrOc0Su/5.2fC9OjP2Xcmo6zGZ3xQui7hoMBqQqDbCtbza', '9123456780', 'traveler', 'active');
+
+INSERT INTO destinations (name, country, description, status) VALUES
+('Munnar', 'India', 'Hill station known for tea plantations, misty mountains, and cool climate.', 'active'),
+('Alleppey', 'India', 'Backwaters destination famous for houseboats, canals, and lagoon views.', 'active'),
+('Jaipur', 'India', 'The Pink City with forts, palaces, bazaars, and rich Rajasthani culture.', 'active'),
+('Udaipur', 'India', 'City of lakes with romantic palace views and heritage architecture.', 'active'),
+('Goa', 'India', 'Coastal escape with beaches, seafood, and lively nightlife.', 'active'),
+('Manali', 'India', 'Himalayan town for adventure activities, snow views, and scenic valleys.', 'active');
+
+INSERT INTO packages
+(title, description, price, duration_days, max_participants, available_slots, inclusions, exclusions, start_date, end_date, created_by, status)
+VALUES
+(
+    'Kerala Tea & Backwaters Escape',
+    'A relaxing Kerala circuit covering Munnar tea estates and Alleppey houseboat stays. Ideal for couples and families looking for nature and calm travel.',
+    18999.00, 5, 20, 16,
+    'Hotel stay, breakfast, houseboat night, sightseeing transfers, guide support',
+    'Flights, lunch/dinner (except houseboat), personal expenses',
+    DATE_ADD(CURDATE(), INTERVAL 20 DAY),
+    DATE_ADD(CURDATE(), INTERVAL 24 DAY),
+    1, 'active'
+),
+(
+    'Royal Rajasthan Heritage Tour',
+    'Explore Jaipur and Udaipur with guided fort visits, cultural evenings, and heritage hotel stays.',
+    24999.00, 6, 25, 20,
+    '4-star hotels, breakfast, private AC transport, monument entry for listed sites',
+    'Flights, camel ride fees, shopping expenses',
+    DATE_ADD(CURDATE(), INTERVAL 35 DAY),
+    DATE_ADD(CURDATE(), INTERVAL 40 DAY),
+    1, 'active'
+),
+(
+    'Goa Beach Getaway',
+    'Sun, sand, and easy days across North Goa beaches with optional water sports.',
+    12999.00, 4, 30, 28,
+    'Beach hotel, breakfast, airport pickup, one water-sport voucher',
+    'Flights, nightlife tickets, alcohol',
+    DATE_ADD(CURDATE(), INTERVAL 12 DAY),
+    DATE_ADD(CURDATE(), INTERVAL 15 DAY),
+    1, 'active'
+),
+(
+    'Manali Adventure Week',
+    'Mountain adventure package with Solang Valley activities and local sightseeing.',
+    16999.00, 5, 18, 12,
+    'Hotel stay, breakfast, local sightseeing transfers, adventure activity booking help',
+    'Adventure activity fees, flights, winter gear rental',
+    DATE_ADD(CURDATE(), INTERVAL 45 DAY),
+    DATE_ADD(CURDATE(), INTERVAL 49 DAY),
+    1, 'active'
 );
+
+INSERT INTO package_destinations (package_id, destination_id) VALUES
+(1, 1), (1, 2),
+(2, 3), (2, 4),
+(3, 5),
+(4, 6);
+
+INSERT INTO itineraries (package_id, day_number, activity_title, description, activity_time, location) VALUES
+(1, 1, 'Arrive Munnar', 'Check-in and evening tea garden walk.', '15:00:00', 'Munnar'),
+(1, 2, 'Tea Estate Tour', 'Visit tea museum and viewpoint trails.', '09:30:00', 'Munnar'),
+(1, 3, 'Transfer to Alleppey', 'Scenic road transfer and canal orientation.', '10:00:00', 'Alleppey'),
+(1, 4, 'Houseboat Cruise', 'Full-day backwater cruise with onboard meals.', '08:00:00', 'Alleppey Backwaters'),
+(1, 5, 'Departure', 'Breakfast and checkout assistance.', '09:00:00', 'Alleppey'),
+(2, 1, 'Jaipur Arrival', 'City orientation and local market stroll.', '16:00:00', 'Jaipur'),
+(2, 2, 'Amber Fort Visit', 'Guided tour of Amber Fort and Jal Mahal viewpoint.', '09:00:00', 'Jaipur'),
+(2, 3, 'Travel to Udaipur', 'Road transfer with evening lake walk.', '08:30:00', 'Udaipur'),
+(2, 4, 'City Palace Tour', 'Heritage walk and boat ride on Lake Pichola.', '10:00:00', 'Udaipur'),
+(2, 5, 'Cultural Evening', 'Folk performance and leisure shopping.', '18:00:00', 'Udaipur'),
+(2, 6, 'Departure', 'Checkout and transfer support.', '09:00:00', 'Udaipur'),
+(3, 1, 'Arrive Goa', 'Hotel check-in and beach time.', '14:00:00', 'Calangute'),
+(3, 2, 'North Goa Tour', 'Visit key beaches and fort viewpoints.', '10:00:00', 'North Goa'),
+(3, 3, 'Water Sports Day', 'Optional jet ski/parasailing session.', '11:00:00', 'Baga Beach'),
+(3, 4, 'Departure', 'Checkout and airport drop.', '09:30:00', 'Goa'),
+(4, 1, 'Arrive Manali', 'Check-in and Mall Road walk.', '16:00:00', 'Manali'),
+(4, 2, 'Solang Valley', 'Adventure zone visit and photo stops.', '09:00:00', 'Solang Valley'),
+(4, 3, 'Local Sightseeing', 'Hadimba Temple and surrounding viewpoints.', '10:00:00', 'Manali'),
+(4, 4, 'Leisure Day', 'Optional spa or cafe hopping.', '11:00:00', 'Manali'),
+(4, 5, 'Departure', 'Checkout assistance.', '09:00:00', 'Manali');
+
+INSERT INTO agent_assignments (agent_id, package_id) VALUES
+(2, 1),
+(2, 2),
+(2, 4);
+
+INSERT INTO bookings (user_id, package_id, num_travelers, total_price, status, booking_date) VALUES
+(3, 3, 2, 25998.00, 'confirmed', NOW()),
+(3, 1, 2, 37998.00, 'completed', DATE_SUB(NOW(), INTERVAL 40 DAY));
+
+UPDATE packages SET available_slots = available_slots - 2 WHERE package_id IN (1, 3);
+
+INSERT INTO payments (booking_id, amount, payment_method, status, transaction_ref, payment_date) VALUES
+(1, 25998.00, 'mock_card', 'success', 'TXN-DEMO-GOA-001', NOW()),
+(2, 37998.00, 'mock_card', 'success', 'TXN-DEMO-KER-001', DATE_SUB(NOW(), INTERVAL 40 DAY));
+
+INSERT INTO reviews (user_id, package_id, rating, comment, review_date) VALUES
+(3, 1, 5, 'Beautiful tea gardens and peaceful houseboat stay. Highly recommended!', DATE_SUB(NOW(), INTERVAL 35 DAY));
+

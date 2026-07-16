@@ -1,21 +1,30 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . "/../../config/db.php";
+require_once __DIR__ . "/../../includes/auth.php";
+requireStaff();
 require_once __DIR__ . "/../../includes/header.php";
-requireAdmin();
 
-const PACKAGES_LIST_PATH = "/admin/packages/list.php";
+const ADMIN_PACKAGES_PATH = "/admin/packages/list.php";
+const AGENT_PACKAGES_PATH = "/agent/packages.php";
 
 $packageId = (int)($_GET["package_id"] ?? $_POST["package_id"] ?? 0);
 if ($packageId <= 0) {
-    redirectTo(PACKAGES_LIST_PATH);
+    redirectTo(isAdmin() ? ADMIN_PACKAGES_PATH : AGENT_PACKAGES_PATH);
 }
+
+if (isAgent() && !agentCanAccessPackage($pdo, $packageId, (int)$_SESSION["user_id"])) {
+    setFlash("danger", "You are not assigned to this package.");
+    redirectTo(AGENT_PACKAGES_PATH);
+}
+
+$backPath = isAdmin() ? ADMIN_PACKAGES_PATH : AGENT_PACKAGES_PATH;
 
 $packageStmt = $pdo->prepare("SELECT package_id, title, duration_days FROM packages WHERE package_id = :id");
 $packageStmt->execute(["id" => $packageId]);
 $package = $packageStmt->fetch();
 if (!$package) {
-    redirectTo(PACKAGES_LIST_PATH);
+    redirectTo($backPath);
 }
 
 $message = "";
@@ -107,7 +116,7 @@ $itineraries = $itinerariesStmt->fetchAll();
         <h3 class="mb-1">Manage Itinerary</h3>
         <p class="text-muted mb-0"><?= htmlspecialchars($package["title"]) ?></p>
     </div>
-    <a class="btn btn-secondary" href="<?= htmlspecialchars(appUrl(PACKAGES_LIST_PATH)) ?>">Back to Packages</a>
+    <a class="btn btn-secondary" href="<?= htmlspecialchars(appUrl($backPath)) ?>">Back to Packages</a>
 </div>
 
 <?php if ($message !== ""): ?>
