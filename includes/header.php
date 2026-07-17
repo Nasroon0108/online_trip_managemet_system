@@ -12,6 +12,8 @@ $searchAction = isAdmin() ? appUrl("/admin/bookings/list.php") : appUrl("/trips/
 $searchPlaceholder = isAdmin() ? "Search bookings or travelers..." : "Search packages or destinations...";
 $searchName = isAdmin() ? "q" : "q";
 $topbarQuery = trim((string)($_GET["q"] ?? ""));
+$showTravelerDashboardBack = $useAppShell && isTraveler() && !str_contains($currentUri, "/dashboard/");
+$travelerDashboardHref = appUrl("/dashboard/index.php");
 ?>
 <!doctype html>
 <html lang="en">
@@ -207,4 +209,10 @@ $topbarQuery = trim((string)($_GET["q"] ?? ""));
                 </div>
             <?php endif; ?>
             <main class="container-fluid p-4 pb-5">
+            <?php if ($showTravelerDashboardBack): ?>
+                <a class="back-dashboard-link" href="<?= htmlspecialchars($travelerDashboardHref) ?>">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    <span>Back to Dashboard</span>
+                </a>
+            <?php endif; ?>
 <?php endif; ?>

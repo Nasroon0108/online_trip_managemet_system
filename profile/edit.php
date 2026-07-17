@@ -138,9 +138,6 @@ require_once __DIR__ . "/../includes/header.php";
         <h2>Profile Settings</h2>
         <p class="text-muted mb-0">Update your personal details and change your password.</p>
     </div>
-    <a class="btn btn-outline-secondary" href="<?= htmlspecialchars($backHref) ?>">
-        <i class="fa-solid fa-arrow-left me-1"></i> Back to workspace
-    </a>
 </div>
 
 <div class="row g-4">
