@@ -237,7 +237,7 @@ require_once __DIR__ . "/../includes/header.php";
     <div class="col-lg-4">
         <div class="card card-modern">
             <div class="card-body p-4 text-center">
-                <?= avatarCircle($user["name"], $user["profile_image"], "mx-auto mb-3 d-flex", "width:4.5rem;height:4.5rem;font-size:1.75rem;") ?>
+                <?= avatarCircle($user["name"], $user["profile_image"], "", "width:4.5rem;height:4.5rem;font-size:1.75rem;display:flex;margin:0 auto 1rem;") ?>
                 <h5 class="mb-1"><?= htmlspecialchars($user["name"]) ?></h5>
                 <p class="text-muted small mb-2"><?= htmlspecialchars($user["email"]) ?></p>
                 <span class="badge badge-role badge-role-<?= htmlspecialchars($user["role"]) ?> px-3 py-2">

@@ -71,7 +71,9 @@ function avatarCircle(string $name, ?string $image, string $extraClasses = "", s
 
     if ($url !== null) {
         return '<span class="' . htmlspecialchars($classes, ENT_QUOTES, "UTF-8") . ' avatar-circle-img"' . $styleAttr . '>'
-            . '<img src="' . htmlspecialchars($url, ENT_QUOTES, "UTF-8") . '" alt="' . htmlspecialchars($name, ENT_QUOTES, "UTF-8") . '">'
+            . '<img src="' . htmlspecialchars($url, ENT_QUOTES, "UTF-8") . '"'
+            . ' alt="' . htmlspecialchars($name, ENT_QUOTES, "UTF-8") . '"'
+            . ' style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">'
             . '</span>';
     }
 
