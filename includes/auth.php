@@ -49,7 +49,7 @@ function refreshSessionUser(?PDO $pdo = null): void
         return;
     }
 
-    $stmt = $db->prepare("SELECT name, role, status FROM users WHERE user_id = :id LIMIT 1");
+    $stmt = $db->prepare("SELECT name, role, status, profile_image FROM users WHERE user_id = :id LIMIT 1");
     $stmt->execute(["id" => (int)$_SESSION["user_id"]]);
     $user = $stmt->fetch();
 
@@ -66,6 +66,7 @@ function refreshSessionUser(?PDO $pdo = null): void
     $role = $user["role"] === "admin" ? "admin" : "traveler";
     $_SESSION["user_name"] = $user["name"];
     $_SESSION["user_role"] = $role;
+    $_SESSION["user_photo"] = $user["profile_image"];
 }
 
 function requireLogin(): void

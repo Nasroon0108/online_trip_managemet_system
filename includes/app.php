@@ -51,3 +51,32 @@ function bookingStatusClass(string $status): string
         default => "text-muted",
     };
 }
+
+function userAvatarUrl(?string $image): ?string
+{
+    if ($image === null || trim($image) === "") {
+        return null;
+    }
+    return appUrl("/uploads/avatars/" . rawurlencode($image));
+}
+
+/**
+ * Render an avatar circle: uploaded photo if present, otherwise the name initial.
+ */
+function avatarCircle(string $name, ?string $image, string $extraClasses = "", string $style = ""): string
+{
+    $url = userAvatarUrl($image);
+    $classes = trim("avatar-circle " . $extraClasses);
+    $styleAttr = $style !== "" ? ' style="' . htmlspecialchars($style, ENT_QUOTES, "UTF-8") . '"' : "";
+
+    if ($url !== null) {
+        return '<span class="' . htmlspecialchars($classes, ENT_QUOTES, "UTF-8") . ' avatar-circle-img"' . $styleAttr . '>'
+            . '<img src="' . htmlspecialchars($url, ENT_QUOTES, "UTF-8") . '" alt="' . htmlspecialchars($name, ENT_QUOTES, "UTF-8") . '">'
+            . '</span>';
+    }
+
+    $initial = strtoupper(substr(trim($name) !== "" ? $name : "U", 0, 1));
+    return '<span class="' . htmlspecialchars($classes, ENT_QUOTES, "UTF-8") . '"' . $styleAttr . '>'
+        . htmlspecialchars($initial, ENT_QUOTES, "UTF-8")
+        . '</span>';
+}

@@ -164,7 +164,7 @@ $topbarQuery = trim((string)($_GET["q"] ?? ""));
 
             <div class="sidebar-profile">
                 <div class="d-flex align-items-center mb-3">
-                    <div class="avatar-circle me-2"><?= strtoupper(substr($_SESSION["user_name"] ?? "U", 0, 1)) ?></div>
+                    <?= avatarCircle($_SESSION["user_name"] ?? "User", $_SESSION["user_photo"] ?? null, "me-2") ?>
                     <div class="overflow-hidden">
                         <div class="fw-semibold text-truncate" style="max-width: 160px;"><?= htmlspecialchars($_SESSION["user_name"] ?? "User") ?></div>
                         <span class="badge badge-role badge-role-<?= htmlspecialchars(currentUserRole()) ?>"><?= htmlspecialchars(currentUserRole()) ?></span>
