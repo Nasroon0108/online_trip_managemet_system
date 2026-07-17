@@ -93,13 +93,13 @@ $topbarQuery = trim((string)($_GET["q"] ?? ""));
         <div class="offcanvas-lg offcanvas-start app-sidebar" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
             <div class="sidebar-header">
                 <div class="d-flex justify-content-between align-items-start">
-                    <a class="sidebar-brand" id="sidebarMenuLabel" href="<?= htmlspecialchars($homeHref) ?>">
+                    <div class="sidebar-brand sidebar-brand-static" id="sidebarMenuLabel">
                         <span class="brand-mark">T</span>
                         <span>
                             Trip Ease
                             <small class="d-block sidebar-brand-sub"><?= isAdmin() ? "Admin Console" : "Traveler Workspace" ?></small>
                         </span>
-                    </a>
+                    </div>
                     <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
                 </div>
             </div>
