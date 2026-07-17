@@ -2,7 +2,6 @@ CREATE DATABASE IF NOT EXISTS online_trip_management;
 USE online_trip_management;
 
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS agent_assignments;
 DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS itineraries;
@@ -11,6 +10,7 @@ DROP TABLE IF EXISTS packages;
 DROP TABLE IF EXISTS destinations;
 DROP TABLE IF EXISTS bookings;
 DROP TABLE IF EXISTS trips;
+DROP TABLE IF EXISTS agent_assignments;
 DROP TABLE IF EXISTS users;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(150) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NULL,
-    role ENUM('traveler', 'admin', 'agent') NOT NULL DEFAULT 'traveler',
+    role ENUM('traveler', 'admin') NOT NULL DEFAULT 'traveler',
     status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
     profile_image VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -117,120 +117,102 @@ CREATE TABLE IF NOT EXISTS reviews (
     CONSTRAINT fk_reviews_package FOREIGN KEY (package_id) REFERENCES packages(package_id) ON DELETE RESTRICT
 );
 
-CREATE TABLE IF NOT EXISTS agent_assignments (
-    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
-    agent_id INT NOT NULL,
-    package_id INT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uq_agent_package UNIQUE (agent_id, package_id),
-    CONSTRAINT fk_assignments_agent FOREIGN KEY (agent_id) REFERENCES users(user_id) ON DELETE RESTRICT,
-    CONSTRAINT fk_assignments_package FOREIGN KEY (package_id) REFERENCES packages(package_id) ON DELETE CASCADE
-);
-
 INSERT INTO users (name, email, password_hash, role, status) VALUES
-('System Admin', 'admin@tripease.local', '$2y$10$nxWTaiW.fYZ9YgPt/VA9/.RTxckKYLnr1qDvrlXJbUFLXTX9D3fIq', 'admin', 'active');
+('Kasun Admin', 'admin@tripease.local', '$2y$10$nxWTaiW.fYZ9YgPt/VA9/.RTxckKYLnr1qDvrlXJbUFLXTX9D3fIq', 'admin', 'active');
 
 INSERT INTO users (name, email, password_hash, phone, role, status) VALUES
-('Trip Agent', 'agent@tripease.local', '$2y$10$VTZ.mvoCZkytUcBSJOev3uTdfxFiJY66GCOVPeblXlTcs7WSwbUNG', '9876543210', 'agent', 'active');
-
-INSERT INTO users (name, email, password_hash, phone, role, status) VALUES
-('Aisha Traveler', 'traveler@tripease.local', '$2y$10$CvhWnE2FrOc0Su/5.2fC9OjP2Xcmo6zGZ3xQui7hoMBqQqDbCtbza', '9123456780', 'traveler', 'active');
+('Sajani Fernando', 'traveler@tripease.local', '$2y$10$CvhWnE2FrOc0Su/5.2fC9OjP2Xcmo6zGZ3xQui7hoMBqQqDbCtbza', '0712345678', 'traveler', 'active');
 
 INSERT INTO destinations (name, country, description, status) VALUES
-('Munnar', 'India', 'Hill station known for tea plantations, misty mountains, and cool climate.', 'active'),
-('Alleppey', 'India', 'Backwaters destination famous for houseboats, canals, and lagoon views.', 'active'),
-('Jaipur', 'India', 'The Pink City with forts, palaces, bazaars, and rich Rajasthani culture.', 'active'),
-('Udaipur', 'India', 'City of lakes with romantic palace views and heritage architecture.', 'active'),
-('Goa', 'India', 'Coastal escape with beaches, seafood, and lively nightlife.', 'active'),
-('Manali', 'India', 'Himalayan town for adventure activities, snow views, and scenic valleys.', 'active');
+('Kandy', 'Sri Lanka', 'Cultural capital in the hills, home to the Temple of the Tooth and scenic Kandy Lake.', 'active'),
+('Ella', 'Sri Lanka', 'Hill-country town famous for Nine Arch Bridge, Little Adam''s Peak, and tea estate views.', 'active'),
+('Sigiriya', 'Sri Lanka', 'UNESCO rock fortress with frescoes, palace ruins, and panoramic jungle views.', 'active'),
+('Nuwara Eliya', 'Sri Lanka', 'Cool-climate tea country known as Little England, with plantations and colonial charm.', 'active'),
+('Galle', 'Sri Lanka', 'Southern coastal city with a Dutch fort, rampart walks, cafes, and heritage streets.', 'active'),
+('Mirissa', 'Sri Lanka', 'Beach town popular for whale watching, surfing, and relaxed southern coastline vibes.', 'active');
 
 INSERT INTO packages
 (title, description, price, duration_days, max_participants, available_slots, inclusions, exclusions, start_date, end_date, created_by, status)
 VALUES
 (
-    'Kerala Tea & Backwaters Escape',
-    'A relaxing Kerala circuit covering Munnar tea estates and Alleppey houseboat stays. Ideal for couples and families looking for nature and calm travel.',
-    18999.00, 5, 20, 16,
-    'Hotel stay, breakfast, houseboat night, sightseeing transfers, guide support',
-    'Flights, lunch/dinner (except houseboat), personal expenses',
+    'Hill Country Tea Trail',
+    'A scenic Sri Lankan hill-country circuit covering Nuwara Eliya tea estates and Ella viewpoints. Ideal for nature lovers and couples.',
+    54999.00, 5, 20, 16,
+    'Hotel stay, breakfast, tea factory visit, sightseeing transfers, local guide support',
+    'Flights, lunch/dinner, train tickets (optional), personal expenses',
     DATE_ADD(CURDATE(), INTERVAL 20 DAY),
     DATE_ADD(CURDATE(), INTERVAL 24 DAY),
     1, 'active'
 ),
 (
-    'Royal Rajasthan Heritage Tour',
-    'Explore Jaipur and Udaipur with guided fort visits, cultural evenings, and heritage hotel stays.',
-    24999.00, 6, 25, 20,
-    '4-star hotels, breakfast, private AC transport, monument entry for listed sites',
-    'Flights, camel ride fees, shopping expenses',
+    'Cultural Triangle Heritage Tour',
+    'Explore Kandy and Sigiriya with temple visits, fortress climbs, and cultural evenings in Sri Lanka''s heritage heartland.',
+    69999.00, 6, 25, 20,
+    '3–4 star hotels, breakfast, private AC transport, listed site entry tickets',
+    'Flights, jeep safari fees, shopping expenses',
     DATE_ADD(CURDATE(), INTERVAL 35 DAY),
     DATE_ADD(CURDATE(), INTERVAL 40 DAY),
     1, 'active'
 ),
 (
-    'Goa Beach Getaway',
-    'Sun, sand, and easy days across North Goa beaches with optional water sports.',
-    12999.00, 4, 30, 28,
-    'Beach hotel, breakfast, airport pickup, one water-sport voucher',
-    'Flights, nightlife tickets, alcohol',
+    'Southern Coast Escape',
+    'Sun and sea along Sri Lanka''s south coast — Galle Fort walks and Mirissa beach days with optional whale watching.',
+    42999.00, 4, 30, 28,
+    'Beach hotel, breakfast, airport/city pickup, Galle Fort walking tour',
+    'Flights, whale-watching boat fees, alcohol, nightlife tickets',
     DATE_ADD(CURDATE(), INTERVAL 12 DAY),
     DATE_ADD(CURDATE(), INTERVAL 15 DAY),
     1, 'active'
 ),
 (
-    'Manali Adventure Week',
-    'Mountain adventure package with Solang Valley activities and local sightseeing.',
-    16999.00, 5, 18, 12,
-    'Hotel stay, breakfast, local sightseeing transfers, adventure activity booking help',
-    'Adventure activity fees, flights, winter gear rental',
+    'Ella Highlands Adventure',
+    'Active hill-country package with Little Adam''s Peak hikes, Nine Arch Bridge, and tea estate trails around Ella.',
+    48999.00, 5, 18, 12,
+    'Hotel stay, breakfast, local sightseeing transfers, trek guidance',
+    'Adventure activity fees, flights, train seat upgrades',
     DATE_ADD(CURDATE(), INTERVAL 45 DAY),
     DATE_ADD(CURDATE(), INTERVAL 49 DAY),
     1, 'active'
 );
 
 INSERT INTO package_destinations (package_id, destination_id) VALUES
-(1, 1), (1, 2),
-(2, 3), (2, 4),
-(3, 5),
-(4, 6);
+(1, 4), (1, 2),
+(2, 1), (2, 3),
+(3, 5), (3, 6),
+(4, 2);
 
 INSERT INTO itineraries (package_id, day_number, activity_title, description, activity_time, location) VALUES
-(1, 1, 'Arrive Munnar', 'Check-in and evening tea garden walk.', '15:00:00', 'Munnar'),
-(1, 2, 'Tea Estate Tour', 'Visit tea museum and viewpoint trails.', '09:30:00', 'Munnar'),
-(1, 3, 'Transfer to Alleppey', 'Scenic road transfer and canal orientation.', '10:00:00', 'Alleppey'),
-(1, 4, 'Houseboat Cruise', 'Full-day backwater cruise with onboard meals.', '08:00:00', 'Alleppey Backwaters'),
-(1, 5, 'Departure', 'Breakfast and checkout assistance.', '09:00:00', 'Alleppey'),
-(2, 1, 'Jaipur Arrival', 'City orientation and local market stroll.', '16:00:00', 'Jaipur'),
-(2, 2, 'Amber Fort Visit', 'Guided tour of Amber Fort and Jal Mahal viewpoint.', '09:00:00', 'Jaipur'),
-(2, 3, 'Travel to Udaipur', 'Road transfer with evening lake walk.', '08:30:00', 'Udaipur'),
-(2, 4, 'City Palace Tour', 'Heritage walk and boat ride on Lake Pichola.', '10:00:00', 'Udaipur'),
-(2, 5, 'Cultural Evening', 'Folk performance and leisure shopping.', '18:00:00', 'Udaipur'),
-(2, 6, 'Departure', 'Checkout and transfer support.', '09:00:00', 'Udaipur'),
-(3, 1, 'Arrive Goa', 'Hotel check-in and beach time.', '14:00:00', 'Calangute'),
-(3, 2, 'North Goa Tour', 'Visit key beaches and fort viewpoints.', '10:00:00', 'North Goa'),
-(3, 3, 'Water Sports Day', 'Optional jet ski/parasailing session.', '11:00:00', 'Baga Beach'),
-(3, 4, 'Departure', 'Checkout and airport drop.', '09:30:00', 'Goa'),
-(4, 1, 'Arrive Manali', 'Check-in and Mall Road walk.', '16:00:00', 'Manali'),
-(4, 2, 'Solang Valley', 'Adventure zone visit and photo stops.', '09:00:00', 'Solang Valley'),
-(4, 3, 'Local Sightseeing', 'Hadimba Temple and surrounding viewpoints.', '10:00:00', 'Manali'),
-(4, 4, 'Leisure Day', 'Optional spa or cafe hopping.', '11:00:00', 'Manali'),
-(4, 5, 'Departure', 'Checkout assistance.', '09:00:00', 'Manali');
-
-INSERT INTO agent_assignments (agent_id, package_id) VALUES
-(2, 1),
-(2, 2),
-(2, 4);
+(1, 1, 'Arrive Nuwara Eliya', 'Check-in and evening stroll around Gregory Lake.', '15:00:00', 'Nuwara Eliya'),
+(1, 2, 'Tea Estate Tour', 'Visit a working tea factory and plantation viewpoint.', '09:30:00', 'Nuwara Eliya'),
+(1, 3, 'Transfer to Ella', 'Scenic hill drive with waterfall photo stops.', '10:00:00', 'Ella'),
+(1, 4, 'Nine Arch Bridge', 'Morning visit to the bridge and nearby tea trails.', '08:00:00', 'Ella'),
+(1, 5, 'Departure', 'Breakfast and checkout assistance.', '09:00:00', 'Ella'),
+(2, 1, 'Arrive Kandy', 'City orientation and evening lake walk.', '16:00:00', 'Kandy'),
+(2, 2, 'Temple of the Tooth', 'Guided temple visit and cultural show.', '09:00:00', 'Kandy'),
+(2, 3, 'Travel to Sigiriya', 'Road transfer with village lunch stop.', '08:30:00', 'Sigiriya'),
+(2, 4, 'Sigiriya Rock Fortress', 'Guided climb and museum visit.', '07:30:00', 'Sigiriya'),
+(2, 5, 'Village & Cave Temples', 'Optional Dambulla caves or village cycling.', '10:00:00', 'Sigiriya'),
+(2, 6, 'Departure', 'Checkout and transfer support.', '09:00:00', 'Sigiriya'),
+(3, 1, 'Arrive Galle', 'Hotel check-in and Fort rampart walk.', '14:00:00', 'Galle Fort'),
+(3, 2, 'Galle Heritage Day', 'Dutch fort, lighthouse, and cafe streets.', '10:00:00', 'Galle'),
+(3, 3, 'Mirissa Beach Day', 'Beach time with optional whale-watching trip.', '07:00:00', 'Mirissa'),
+(3, 4, 'Departure', 'Checkout and airport/city drop.', '09:30:00', 'Mirissa'),
+(4, 1, 'Arrive Ella', 'Check-in and Main Street cafe evening.', '16:00:00', 'Ella'),
+(4, 2, 'Little Adam''s Peak', 'Sunrise hike and viewpoint photography.', '06:00:00', 'Ella'),
+(4, 3, 'Nine Arch & Ravana Falls', 'Iconic bridge visit and waterfall stop.', '09:30:00', 'Ella'),
+(4, 4, 'Tea Trails Leisure', 'Optional estate walk or spa afternoon.', '11:00:00', 'Ella'),
+(4, 5, 'Departure', 'Checkout assistance.', '09:00:00', 'Ella');
 
 INSERT INTO bookings (user_id, package_id, num_travelers, total_price, status, booking_date) VALUES
-(3, 3, 2, 25998.00, 'confirmed', NOW()),
-(3, 1, 2, 37998.00, 'completed', DATE_SUB(NOW(), INTERVAL 40 DAY));
+(2, 3, 2, 85998.00, 'confirmed', NOW()),
+(2, 1, 2, 109998.00, 'completed', DATE_SUB(NOW(), INTERVAL 40 DAY));
 
 UPDATE packages SET available_slots = available_slots - 2 WHERE package_id IN (1, 3);
 
 INSERT INTO payments (booking_id, amount, payment_method, status, transaction_ref, payment_date) VALUES
-(1, 25998.00, 'mock_card', 'success', 'TXN-DEMO-GOA-001', NOW()),
-(2, 37998.00, 'mock_card', 'success', 'TXN-DEMO-KER-001', DATE_SUB(NOW(), INTERVAL 40 DAY));
+(1, 85998.00, 'mock_card', 'success', 'TXN-DEMO-SOUTH-001', NOW()),
+(2, 109998.00, 'mock_card', 'success', 'TXN-DEMO-HILL-001', DATE_SUB(NOW(), INTERVAL 40 DAY));
 
 INSERT INTO reviews (user_id, package_id, rating, comment, review_date) VALUES
-(3, 1, 5, 'Beautiful tea gardens and peaceful houseboat stay. Highly recommended!', DATE_SUB(NOW(), INTERVAL 35 DAY));
+(2, 1, 5, 'Beautiful tea estates and cool Ella mornings. A wonderful Sri Lankan hill-country trip!', DATE_SUB(NOW(), INTERVAL 35 DAY));
 

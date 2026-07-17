@@ -8,13 +8,30 @@ $isLinkActive = function (string $path) use ($currentUri): string {
 };
 $useAppShell = isLoggedIn();
 $homeHref = $useAppShell ? appUrl(dashboardPath()) : appUrl("/index.php");
+$searchAction = isAdmin() ? appUrl("/admin/bookings/list.php") : appUrl("/trips/list.php");
+$searchPlaceholder = isAdmin() ? "Search bookings or travelers..." : "Search packages or destinations...";
+$searchName = isAdmin() ? "q" : "q";
+$topbarQuery = trim((string)($_GET["q"] ?? ""));
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TripEase — Online Trip Management</title>
+    <title>Trip Ease — Online Trip Management</title>
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem("tripease-theme");
+                if (theme !== "dark" && theme !== "light") {
+                    theme = "light";
+                }
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch (e) {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
@@ -28,9 +45,15 @@ $homeHref = $useAppShell ? appUrl(dashboardPath()) : appUrl("/index.php");
     <header class="public-topbar">
         <div class="container d-flex align-items-center justify-content-between py-3">
             <a class="public-brand text-decoration-none" href="<?= htmlspecialchars(appUrl('/index.php')) ?>">
-                TripEase
+                Trip Ease
             </a>
-            <a class="btn btn-brand btn-sm px-3" href="<?= htmlspecialchars(appUrl('/auth/register.php')) ?>">Create account</a>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <i class="fa-solid fa-moon theme-icon-moon" aria-hidden="true"></i>
+                    <i class="fa-solid fa-sun theme-icon-sun" aria-hidden="true"></i>
+                </button>
+                <a class="btn btn-brand btn-sm px-3" href="<?= htmlspecialchars(appUrl('/auth/register.php')) ?>">Create account</a>
+            </div>
         </div>
     </header>
 
@@ -55,54 +78,58 @@ $homeHref = $useAppShell ? appUrl(dashboardPath()) : appUrl("/index.php");
 <?php else: ?>
     <div class="sidebar-layout">
         <div class="mobile-top-bar w-100">
-            <a class="sidebar-brand" href="<?= htmlspecialchars($homeHref) ?>">TripEase</a>
-            <button class="btn btn-outline-secondary border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-                <i class="fa-solid fa-bars fs-5"></i>
-            </button>
+            <a class="sidebar-brand" href="<?= htmlspecialchars($homeHref) ?>">Trip Ease</a>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <i class="fa-solid fa-moon theme-icon-moon" aria-hidden="true"></i>
+                    <i class="fa-solid fa-sun theme-icon-sun" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-outline-secondary border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                    <i class="fa-solid fa-bars fs-5"></i>
+                </button>
+            </div>
         </div>
 
         <div class="offcanvas-lg offcanvas-start app-sidebar" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
-            <div class="sidebar-header d-flex justify-content-between align-items-center">
-                <a class="sidebar-brand" id="sidebarMenuLabel" href="<?= htmlspecialchars($homeHref) ?>">TripEase</a>
-                <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
+            <div class="sidebar-header">
+                <div class="d-flex justify-content-between align-items-start">
+                    <a class="sidebar-brand" id="sidebarMenuLabel" href="<?= htmlspecialchars($homeHref) ?>">
+                        <span class="brand-mark">T</span>
+                        <span>
+                            Trip Ease
+                            <small class="d-block sidebar-brand-sub"><?= isAdmin() ? "Admin Console" : "Traveler Workspace" ?></small>
+                        </span>
+                    </a>
+                    <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
+                </div>
             </div>
 
             <div class="sidebar-menu">
                 <nav class="nav flex-column">
                     <?php if (isTraveler()): ?>
-                        <div class="sidebar-heading">Traveler</div>
+                        <div class="sidebar-heading">Workspace</div>
+                        <a class="sidebar-nav-link <?= $isLinkActive('/dashboard/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/dashboard/index.php')) ?>">
+                            <i class="fa-solid fa-gauge-high"></i> Dashboard
+                        </a>
                         <a class="sidebar-nav-link <?= $isLinkActive('/trips/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/trips/list.php')) ?>">
                             <i class="fa-solid fa-map"></i> Browse Packages
                         </a>
-                        <a class="sidebar-nav-link <?= $isLinkActive('/bookings/') || $isLinkActive('/payments/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/bookings/my_bookings.php')) ?>">
+                        <a class="sidebar-nav-link <?= $isLinkActive('/bookings/my_bookings.php') || $isLinkActive('/payments/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/bookings/my_bookings.php')) ?>">
                             <i class="fa-solid fa-ticket"></i> My Bookings
                         </a>
-                        <a class="sidebar-nav-link <?= $isLinkActive('/profile/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/profile/edit.php')) ?>">
-                            <i class="fa-solid fa-user"></i> Profile
-                        </a>
-                    <?php endif; ?>
-
-                    <?php if (isAgent()): ?>
-                        <div class="sidebar-heading">Agent Workspace</div>
-                        <a class="sidebar-nav-link <?= $isLinkActive('/agent/index.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/agent/index.php')) ?>">
-                            <i class="fa-solid fa-briefcase"></i> Dashboard
-                        </a>
-                        <a class="sidebar-nav-link <?= $isLinkActive('/agent/packages.php') || $isLinkActive('/admin/itineraries/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/agent/packages.php')) ?>">
-                            <i class="fa-solid fa-route"></i> Assigned Packages
-                        </a>
-                        <a class="sidebar-nav-link <?= $isLinkActive('/agent/bookings.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/agent/bookings.php')) ?>">
-                            <i class="fa-solid fa-clipboard-check"></i> Assigned Bookings
-                        </a>
-                        <a class="sidebar-nav-link <?= $isLinkActive('/trips/list.php') || $isLinkActive('/trips/view.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/trips/list.php')) ?>">
-                            <i class="fa-solid fa-eye"></i> Preview Packages
+                        <a class="sidebar-nav-link <?= $isLinkActive('/bookings/paid.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/bookings/paid.php')) ?>">
+                            <i class="fa-solid fa-wallet"></i> Paid Bookings
                         </a>
                         <a class="sidebar-nav-link <?= $isLinkActive('/profile/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/profile/edit.php')) ?>">
                             <i class="fa-solid fa-user"></i> Profile
+                        </a>
+                        <a class="btn btn-brand sidebar-cta" href="<?= htmlspecialchars(appUrl('/trips/list.php')) ?>">
+                            <i class="fa-solid fa-plus me-1"></i> New Booking
                         </a>
                     <?php endif; ?>
 
                     <?php if (isAdmin()): ?>
-                        <div class="sidebar-heading">Admin Console</div>
+                        <div class="sidebar-heading">Operations</div>
                         <a class="sidebar-nav-link <?= $isLinkActive('/admin/index.php') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/index.php')) ?>">
                             <i class="fa-solid fa-gauge-high"></i> Dashboard
                         </a>
@@ -112,8 +139,11 @@ $homeHref = $useAppShell ? appUrl(dashboardPath()) : appUrl("/index.php");
                         <a class="sidebar-nav-link <?= $isLinkActive('/admin/packages/') || $isLinkActive('/admin/itineraries/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">
                             <i class="fa-solid fa-box-open"></i> Packages
                         </a>
-                        <a class="sidebar-nav-link <?= $isLinkActive('/admin/bookings/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/bookings/list.php')) ?>">
+                        <a class="sidebar-nav-link <?= $isLinkActive('/admin/bookings/') && !str_contains($currentUri, 'payment=') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/bookings/list.php')) ?>">
                             <i class="fa-solid fa-clipboard-list"></i> Bookings
+                        </a>
+                        <a class="sidebar-nav-link <?= str_contains($currentUri, 'payment=success') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/bookings/list.php?payment=success')) ?>">
+                            <i class="fa-solid fa-wallet"></i> Paid Bookings
                         </a>
                         <a class="sidebar-nav-link <?= $isLinkActive('/admin/users/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/admin/users/list.php')) ?>">
                             <i class="fa-solid fa-users"></i> Users & Roles
@@ -124,6 +154,9 @@ $homeHref = $useAppShell ? appUrl(dashboardPath()) : appUrl("/index.php");
                         </a>
                         <a class="sidebar-nav-link <?= $isLinkActive('/profile/') ? 'active' : '' ?>" href="<?= htmlspecialchars(appUrl('/profile/edit.php')) ?>">
                             <i class="fa-solid fa-user"></i> Profile
+                        </a>
+                        <a class="btn btn-brand sidebar-cta" href="<?= htmlspecialchars(appUrl('/admin/packages/create.php')) ?>">
+                            <i class="fa-solid fa-plus me-1"></i> New Package
                         </a>
                     <?php endif; ?>
                 </nav>
@@ -144,6 +177,19 @@ $homeHref = $useAppShell ? appUrl(dashboardPath()) : appUrl("/index.php");
         </div>
 
         <div class="main-content">
+            <div class="app-topbar">
+                <form class="topbar-search" method="get" action="<?= htmlspecialchars($searchAction) ?>" role="search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input type="search" name="<?= htmlspecialchars($searchName) ?>" value="<?= htmlspecialchars($topbarQuery) ?>" placeholder="<?= htmlspecialchars($searchPlaceholder) ?>" aria-label="Search">
+                </form>
+                <div class="topbar-actions">
+                    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+                        <i class="fa-solid fa-moon theme-icon-moon" aria-hidden="true"></i>
+                        <i class="fa-solid fa-sun theme-icon-sun" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
             <?php $flash = consumeFlash(); ?>
             <?php if ($flash): ?>
                 <?php
@@ -154,7 +200,7 @@ $homeHref = $useAppShell ? appUrl(dashboardPath()) : appUrl("/index.php");
                     default => "alert-info",
                 };
                 ?>
-                <div class="container-fluid px-4 mt-4">
+                <div class="container-fluid px-4 pt-3">
                     <div class="alert <?= $alertClass ?> border-0 shadow-sm rounded-3 mb-0">
                         <?= htmlspecialchars($flash["message"]) ?>
                     </div>

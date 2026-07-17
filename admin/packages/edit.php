@@ -106,73 +106,79 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-<div class="row justify-content-center">
-    <div class="col-lg-9">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="mb-0">Edit Package</h3>
-                    <a class="btn btn-secondary" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">Back</a>
-                </div>
-                <?php if ($message !== ""): ?>
-                    <div class="alert alert-warning"><?= htmlspecialchars($message) ?></div>
-                <?php endif; ?>
-                <?php if (!$destinations): ?>
-                    <div class="alert alert-info mb-0">No active destinations available.</div>
-                <?php else: ?>
-                    <form method="post">
-                        <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label" for="package-title">Package Title</label>
-                                <input class="form-control" id="package-title" name="title" value="<?= htmlspecialchars($package["title"]) ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="package-price">Price</label>
-                                <input class="form-control" id="package-price" type="number" name="price" step="0.01" min="0" value="<?= htmlspecialchars((string)$package["price"]) ?>" required>
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label" for="package-description">Description</label>
-                                <textarea class="form-control" id="package-description" name="description" rows="3" required><?= htmlspecialchars($package["description"]) ?></textarea>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" for="package-duration">Duration (Days)</label>
-                                <input class="form-control" id="package-duration" type="number" name="duration_days" min="1" value="<?= (int)$package["duration_days"] ?>" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" for="package-max-participants">Max Participants</label>
-                                <input class="form-control" id="package-max-participants" type="number" name="max_participants" min="1" value="<?= (int)$package["max_participants"] ?>" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" for="package-available-slots">Available Slots</label>
-                                <input class="form-control" id="package-available-slots" type="number" name="available_slots" min="1" value="<?= (int)$package["available_slots"] ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="package-start-date">Start Date</label>
-                                <input class="form-control" id="package-start-date" type="date" name="start_date" value="<?= htmlspecialchars((string)$package["start_date"]) ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="package-end-date">End Date</label>
-                                <input class="form-control" id="package-end-date" type="date" name="end_date" value="<?= htmlspecialchars((string)$package["end_date"]) ?>" required>
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label d-block">Destinations</label>
-                                <?php foreach ($destinations as $destination): ?>
-                                    <?php $isChecked = in_array((int)$destination["destination_id"], $selectedDestinationIds, true); ?>
+<div class="page-header">
+    <div>
+        <h2>Edit package</h2>
+        <p class="text-muted mb-0">Update inventory details and destination mapping.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">Back to packages</a>
+</div>
+
+<div class="card card-modern">
+    <div class="card-body p-4">
+        <?php if ($message !== ""): ?>
+            <div class="alert alert-warning border-0"><?= htmlspecialchars($message) ?></div>
+        <?php endif; ?>
+        <?php if (!$destinations): ?>
+            <div class="alert alert-info border-0 mb-0">No active destinations available.</div>
+        <?php else: ?>
+            <form method="post">
+                <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="package-title">Package title</label>
+                        <input class="form-control" id="package-title" name="title" value="<?= htmlspecialchars($package["title"]) ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="package-price">Price</label>
+                        <input class="form-control" id="package-price" type="number" name="price" step="0.01" min="0" value="<?= htmlspecialchars((string)$package["price"]) ?>" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label" for="package-description">Description</label>
+                        <textarea class="form-control" id="package-description" name="description" rows="3" required><?= htmlspecialchars($package["description"]) ?></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="package-duration">Duration (days)</label>
+                        <input class="form-control" id="package-duration" type="number" name="duration_days" min="1" value="<?= (int)$package["duration_days"] ?>" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="package-max-participants">Max participants</label>
+                        <input class="form-control" id="package-max-participants" type="number" name="max_participants" min="1" value="<?= (int)$package["max_participants"] ?>" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="package-available-slots">Available slots</label>
+                        <input class="form-control" id="package-available-slots" type="number" name="available_slots" min="1" value="<?= (int)$package["available_slots"] ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="package-start-date">Start date</label>
+                        <input class="form-control" id="package-start-date" type="date" name="start_date" value="<?= htmlspecialchars((string)$package["start_date"]) ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="package-end-date">End date</label>
+                        <input class="form-control" id="package-end-date" type="date" name="end_date" value="<?= htmlspecialchars((string)$package["end_date"]) ?>" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label d-block">Destinations</label>
+                        <div class="row g-2">
+                            <?php foreach ($destinations as $destination): ?>
+                                <?php $isChecked = in_array((int)$destination["destination_id"], $selectedDestinationIds, true); ?>
+                                <div class="col-md-6">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="destination-<?= (int)$destination["destination_id"] ?>" name="destination_ids[]" value="<?= (int)$destination["destination_id"] ?>" <?= $isChecked ? "checked" : "" ?>>
                                         <label class="form-check-label" for="destination-<?= (int)$destination["destination_id"] ?>">
                                             <?= htmlspecialchars($destination["name"]) ?>, <?= htmlspecialchars($destination["country"]) ?>
                                         </label>
                                     </div>
-                                <?php endforeach; ?>
-                            </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                        <button class="btn btn-primary mt-3" type="submit">Update Package</button>
-                    </form>
-                <?php endif; ?>
-            </div>
-        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-primary" type="submit">Update package</button>
+                </div>
+            </form>
+        <?php endif; ?>
     </div>
 </div>
 

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Shared booking status transitions for admin/agent/traveler cancel flows.
+ * Shared booking status transitions for admin/traveler cancel flows.
  *
  * @return array{ok:bool,message:string}
  */

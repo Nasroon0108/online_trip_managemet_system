@@ -43,210 +43,193 @@ $topPackages = $pdo->query(
 )->fetchAll();
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 animate-slide-up">
+<div class="page-header">
     <div>
-        <h2 class="fw-bold mb-1"><i class="fa-solid fa-chart-line text-primary me-2"></i>Admin Dashboard</h2>
-        <p class="text-muted mb-0">Reports and management overview for TripEase.</p>
+        <p class="page-kicker mb-1">Operations overview</p>
+        <h2>Admin Dashboard</h2>
+        <p class="text-muted mb-0">Platform health, booking status, and quick management links.</p>
     </div>
+    <a class="btn btn-primary" href="<?= htmlspecialchars(appUrl('/admin/packages/create.php')) ?>">
+        <i class="fa-solid fa-plus me-1"></i> New Package
+    </a>
 </div>
 
-<div class="row g-3 mb-4">
+<div class="row g-4 stats-row">
     <div class="col-sm-6 col-xl-3">
-        <div class="card card-modern h-100">
-            <div class="card-body p-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-success-subtle text-success rounded-3 d-flex align-items-center justify-content-center" style="width:52px;height:52px;font-size:1.4rem;flex-shrink:0;">
-                        <i class="fa-solid fa-money-bill-trend-up"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small mb-1">Total Revenue</div>
-                        <div class="fs-4 fw-bold text-dark">Rs. <?= number_format($stats["revenue"], 0) ?></div>
-                    </div>
-                </div>
+        <div class="stat-card stat-card-accent">
+            <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+            <div>
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value" style="font-size:1.55rem;">Rs. <?= number_format($stats["revenue"], 0) ?></div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="card card-modern h-100">
-            <div class="card-body p-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center" style="width:52px;height:52px;font-size:1.4rem;flex-shrink:0;">
-                        <i class="fa-solid fa-receipt"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small mb-1">Total Bookings</div>
-                        <div class="fs-4 fw-bold text-dark"><?= $stats["bookings"] ?></div>
-                    </div>
-                </div>
+        <div class="stat-card stat-card-accent">
+            <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
+            <div>
+                <div class="stat-label">Total Bookings</div>
+                <div class="stat-value"><?= $stats["bookings"] ?></div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="card card-modern h-100">
-            <div class="card-body p-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-info-subtle text-info rounded-3 d-flex align-items-center justify-content-center" style="width:52px;height:52px;font-size:1.4rem;flex-shrink:0;">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small mb-1">Travelers</div>
-                        <div class="fs-4 fw-bold text-dark"><?= $stats["travelers"] ?></div>
-                    </div>
-                </div>
+        <div class="stat-card stat-card-accent">
+            <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+            <div>
+                <div class="stat-label">Travelers</div>
+                <div class="stat-value"><?= $stats["travelers"] ?></div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="card card-modern h-100">
-            <div class="card-body p-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-warning-subtle text-warning rounded-3 d-flex align-items-center justify-content-center" style="width:52px;height:52px;font-size:1.4rem;flex-shrink:0;">
-                        <i class="fa-solid fa-cubes"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small mb-1">Active Packages</div>
-                        <div class="fs-4 fw-bold text-dark"><?= $stats["active_packages"] ?></div>
-                    </div>
-                </div>
+        <div class="stat-card stat-card-accent">
+            <div class="stat-icon"><i class="fa-solid fa-box-open"></i></div>
+            <div>
+                <div class="stat-label">Active Packages</div>
+                <div class="stat-value"><?= $stats["active_packages"] ?></div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-3 mb-4">
+<div class="row g-4 stats-row">
     <div class="col-md-3">
-        <div class="card shadow-sm h-100 border-start border-4 border-warning">
-            <div class="card-body">
-                <div class="text-muted small">Pending</div>
-                <div class="fs-3 fw-semibold"><?= $stats["pending_bookings"] ?></div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value"><?= $stats["pending_bookings"] ?></div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card shadow-sm h-100 border-start border-4 border-success">
-            <div class="card-body">
-                <div class="text-muted small">Confirmed</div>
-                <div class="fs-3 fw-semibold"><?= $stats["confirmed_bookings"] ?></div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Confirmed</div>
+            <div class="stat-value"><?= $stats["confirmed_bookings"] ?></div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card shadow-sm h-100 border-start border-4 border-primary">
-            <div class="card-body">
-                <div class="text-muted small">Completed</div>
-                <div class="fs-3 fw-semibold"><?= $stats["completed_bookings"] ?></div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value"><?= $stats["completed_bookings"] ?></div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card shadow-sm h-100 border-start border-4 border-danger">
-            <div class="card-body">
-                <div class="text-muted small">Cancelled</div>
-                <div class="fs-3 fw-semibold"><?= $stats["cancelled_bookings"] ?></div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Cancelled</div>
+            <div class="stat-value"><?= $stats["cancelled_bookings"] ?></div>
         </div>
     </div>
 </div>
 
-<div class="row g-3 mb-4">
+<div class="row g-4 mb-4">
     <div class="col-lg-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Popular Destinations</h5>
-                <?php if ($popularDestinations): ?>
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Destination</th>
-                                    <th>Country</th>
-                                    <th>Bookings</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($popularDestinations as $destination): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($destination["name"]) ?></td>
-                                    <td><?= htmlspecialchars($destination["country"]) ?></td>
-                                    <td><?= (int)$destination["booking_count"] ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
+        <div class="card card-modern card-panel h-100">
+            <div class="card-body p-0">
+                <div class="panel-toolbar">
+                    <div>
+                        <h5 class="mb-0">Popular destinations</h5>
+                        <p class="text-muted small mb-0">Based on confirmed and completed bookings</p>
                     </div>
-                <?php else: ?>
-                    <p class="text-muted mb-0">No booking data yet.</p>
-                <?php endif; ?>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-app align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Destination</th>
+                                <th>Country</th>
+                                <th class="text-end">Bookings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($popularDestinations as $destination): ?>
+                            <tr>
+                                <td class="fw-semibold"><?= htmlspecialchars($destination["name"]) ?></td>
+                                <td><?= htmlspecialchars($destination["country"]) ?></td>
+                                <td class="text-end"><?= (int)$destination["booking_count"] ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (!$popularDestinations): ?>
+                            <tr><td colspan="3" class="text-center text-muted py-4">No booking data yet.</td></tr>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Top Packages</h5>
-                <?php if ($topPackages): ?>
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Package</th>
-                                    <th>Bookings</th>
-                                    <th>Avg Rating</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($topPackages as $pkg): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($pkg["title"]) ?></td>
-                                    <td><?= (int)$pkg["booking_count"] ?></td>
-                                    <td><?= $pkg["avg_rating"] > 0 ? number_format((float)$pkg["avg_rating"], 1) . " / 5" : "—" ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
+        <div class="card card-modern card-panel h-100">
+            <div class="card-body p-0">
+                <div class="panel-toolbar">
+                    <div>
+                        <h5 class="mb-0">Top packages</h5>
+                        <p class="text-muted small mb-0">Highest booking volume and ratings</p>
                     </div>
-                <?php else: ?>
-                    <p class="text-muted mb-0">No package data yet.</p>
-                <?php endif; ?>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-app align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Package</th>
+                                <th>Bookings</th>
+                                <th class="text-end">Avg rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($topPackages as $pkg): ?>
+                            <tr>
+                                <td class="fw-semibold"><?= htmlspecialchars($pkg["title"]) ?></td>
+                                <td><?= (int)$pkg["booking_count"] ?></td>
+                                <td class="text-end"><?= $pkg["avg_rating"] > 0 ? number_format((float)$pkg["avg_rating"], 1) . " / 5" : "—" ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (!$topPackages): ?>
+                            <tr><td colspan="3" class="text-center text-muted py-4">No package data yet.</td></tr>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-3">
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Destination Management</h5>
-                <p class="text-muted">Create, edit, activate, and deactivate destinations used by travel packages.</p>
-                <a class="btn btn-primary" href="<?= htmlspecialchars(appUrl('/admin/destinations/list.php')) ?>">Manage Destinations</a>
+<div class="row g-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card card-modern h-100">
+            <div class="card-body p-4">
+                <h5 class="mb-2">Destinations</h5>
+                <p class="text-muted small mb-3"><?= $stats["destinations"] ?> total · create and activate locations used by packages.</p>
+                <a class="btn btn-primary btn-sm" href="<?= htmlspecialchars(appUrl('/admin/destinations/list.php')) ?>">Manage</a>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Package Management</h5>
-                <p class="text-muted">Create and maintain packages, assign destinations, and control availability.</p>
-                <a class="btn btn-primary" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">Manage Packages</a>
+    <div class="col-md-6 col-xl-3">
+        <div class="card card-modern h-100">
+            <div class="card-body p-4">
+                <h5 class="mb-2">Packages</h5>
+                <p class="text-muted small mb-3"><?= $stats["packages"] ?> total · maintain inventory and itineraries.</p>
+                <a class="btn btn-primary btn-sm" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">Manage</a>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Booking Management</h5>
-                <p class="text-muted">Review booking and payment statuses, then cancel or complete trips as needed.</p>
-                <a class="btn btn-primary" href="<?= htmlspecialchars(appUrl('/admin/bookings/list.php')) ?>">Manage Bookings</a>
+    <div class="col-md-6 col-xl-3">
+        <div class="card card-modern h-100">
+            <div class="card-body p-4">
+                <h5 class="mb-2">Bookings</h5>
+                <p class="text-muted small mb-3">Review payments and mark trips completed or cancelled.</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-primary btn-sm" href="<?= htmlspecialchars(appUrl('/admin/bookings/list.php')) ?>">Manage</a>
+                    <a class="btn btn-outline-secondary btn-sm" href="<?= htmlspecialchars(appUrl('/admin/bookings/list.php?payment=success')) ?>">Paid</a>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">User Management</h5>
-                <p class="text-muted">Activate or deactivate traveler accounts and review registered users.</p>
-                <a class="btn btn-primary" href="<?= htmlspecialchars(appUrl('/admin/users/list.php')) ?>">Manage Users</a>
+    <div class="col-md-6 col-xl-3">
+        <div class="card card-modern h-100">
+            <div class="card-body p-4">
+                <h5 class="mb-2">Users & roles</h5>
+                <p class="text-muted small mb-3">Activate accounts and assign traveler or admin roles.</p>
+                <a class="btn btn-primary btn-sm" href="<?= htmlspecialchars(appUrl('/admin/users/list.php')) ?>">Manage</a>
             </div>
         </div>
     </div>

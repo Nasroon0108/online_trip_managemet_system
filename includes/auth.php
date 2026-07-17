@@ -27,20 +27,12 @@ function isTraveler(): bool
     return currentUserRole() === "traveler";
 }
 
-function isAgent(): bool
-{
-    return currentUserRole() === "agent";
-}
-
 function dashboardPath(): string
 {
     if (isAdmin()) {
         return "/admin/index.php";
     }
-    if (isAgent()) {
-        return "/agent/index.php";
-    }
-    return "/trips/list.php";
+    return "/dashboard/index.php";
 }
 
 /**
@@ -70,8 +62,10 @@ function refreshSessionUser(?PDO $pdo = null): void
         redirectTo("/auth/login.php");
     }
 
+    // Legacy agent accounts are treated as travelers after role removal.
+    $role = $user["role"] === "admin" ? "admin" : "traveler";
     $_SESSION["user_name"] = $user["name"];
-    $_SESSION["user_role"] = $user["role"];
+    $_SESSION["user_role"] = $role;
 }
 
 function requireLogin(): void
@@ -98,54 +92,6 @@ function requireTraveler(): void
         setFlash("danger", "Traveler access required.");
         redirectTo(dashboardPath());
     }
-}
-
-function requireAgent(): void
-{
-    requireLogin();
-    if (!isAgent()) {
-        setFlash("danger", "Agent access required.");
-        redirectTo(dashboardPath());
-    }
-}
-
-function requireStaff(): void
-{
-    requireLogin();
-    if (!isAdmin() && !isAgent()) {
-        setFlash("danger", "Staff access required.");
-        redirectTo(dashboardPath());
-    }
-}
-
-function agentCanAccessPackage(PDO $pdo, int $packageId, int $agentId): bool
-{
-    $stmt = $pdo->prepare(
-        "SELECT assignment_id FROM agent_assignments
-         WHERE package_id = :package_id AND agent_id = :agent_id
-         LIMIT 1"
-    );
-    $stmt->execute([
-        "package_id" => $packageId,
-        "agent_id" => $agentId,
-    ]);
-    return (bool)$stmt->fetch();
-}
-
-function agentCanAccessBooking(PDO $pdo, int $bookingId, int $agentId): bool
-{
-    $stmt = $pdo->prepare(
-        "SELECT b.booking_id
-         FROM bookings b
-         INNER JOIN agent_assignments aa ON aa.package_id = b.package_id
-         WHERE b.booking_id = :booking_id AND aa.agent_id = :agent_id
-         LIMIT 1"
-    );
-    $stmt->execute([
-        "booking_id" => $bookingId,
-        "agent_id" => $agentId,
-    ]);
-    return (bool)$stmt->fetch();
 }
 
 function csrfToken(): string

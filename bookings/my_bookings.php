@@ -33,14 +33,27 @@ $stmt->execute(["user_id" => (int)$_SESSION["user_id"]]);
 $bookings = $stmt->fetchAll();
 ?>
 
-<div class="mb-4 animate-slide-up">
-    <h3 class="fw-bold mb-1">My Bookings</h3>
-    <p class="text-muted">Track your booked itineraries, payment logs, and trip statuses</p>
+<div class="page-header animate-slide-up">
+    <div>
+        <p class="page-kicker mb-1">My Account</p>
+        <h2>My Bookings</h2>
+        <p class="text-muted mb-0">Track booked itineraries, payments, and trip statuses</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/bookings/paid.php')) ?>">
+        <i class="fa-solid fa-wallet me-1"></i>Paid bookings
+    </a>
 </div>
 
-<div class="card card-modern animate-slide-up">
-    <div class="table-responsive">
-        <table class="table table-modern table-hover align-middle mb-0">
+<div class="card card-modern card-panel animate-slide-up">
+    <div class="card-body p-0">
+        <div class="panel-toolbar">
+            <div>
+                <h5 class="mb-0">Booking ledger</h5>
+                <p class="text-muted small mb-0"><?= count($bookings) ?> record<?= count($bookings) === 1 ? "" : "s" ?></p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-app align-middle mb-0">
             <thead>
                 <tr>
                     <th>Package</th>
@@ -118,6 +131,10 @@ $bookings = $stmt->fetchAll();
                                 <a class="btn btn-sm btn-outline-success" href="<?= htmlspecialchars(appUrl('/reviews/create.php?package_id=' . (int)$booking["package_id"])) ?>">
                                     <i class="fa-solid fa-star me-1"></i> Review
                                 </a>
+                            <?php elseif ($booking["status"] === "completed" && !empty($booking["review_id"])): ?>
+                                <a class="btn btn-sm btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/trips/view.php?id=' . (int)$booking["package_id"] . '#reviews')) ?>">
+                                    <i class="fa-solid fa-circle-check me-1"></i> Reviewed
+                                </a>
                             <?php endif; ?>
                         </div>
                     </td>
@@ -134,6 +151,7 @@ $bookings = $stmt->fetchAll();
             <?php endif; ?>
             </tbody>
         </table>
+    </div>
     </div>
 </div>
 

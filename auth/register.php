@@ -14,11 +14,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"] ?? "");
     $phone = trim($_POST["phone"] ?? "");
     $password = $_POST["password"] ?? "";
-    $role = $_POST["role"] ?? "traveler";
-
-    if (!in_array($role, ["traveler", "agent"], true)) {
-        $role = "traveler";
-    }
 
     if ($name === "" || $email === "" || $password === "") {
         $message = "All fields are required.";
@@ -31,17 +26,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             $stmt = $pdo->prepare(
                 "INSERT INTO users (name, email, password_hash, phone, role, status)
-                 VALUES (:name, :email, :password_hash, :phone, :role, 'active')"
+                 VALUES (:name, :email, :password_hash, :phone, 'traveler', 'active')"
             );
             $stmt->execute([
                 "name" => $name,
                 "email" => $email,
                 "password_hash" => password_hash($password, PASSWORD_DEFAULT),
                 "phone" => $phone !== "" ? $phone : null,
-                "role" => $role,
             ]);
-            $roleLabel = $role === "agent" ? "agent" : "traveler";
-            setFlash("success", "Account created as {$roleLabel}. Please log in.");
+            setFlash("success", "Account created. Please log in.");
             redirectTo("/auth/login.php");
         }
     }
@@ -50,76 +43,78 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 require_once __DIR__ . "/../includes/header.php";
 ?>
 
-<div class="container py-4">
-<div class="row justify-content-center animate-slide-up" style="margin-top: 3vh;">
-    <div class="col-md-6">
-        <div class="card card-modern">
-            <div class="card-body p-4 p-md-5">
-                <div class="text-center mb-4">
-                    <div class="feature-icon-modern mb-2">
-                        <i class="fa-solid fa-user-plus"></i>
+<div class="container py-5">
+<div class="row justify-content-center animate-slide-up">
+    <div class="col-lg-9 col-xl-7">
+        <div class="row g-0 card card-modern overflow-hidden" style="border-radius: 20px !important;">
+            <!-- Left decorative panel -->
+            <div class="col-md-4 d-none d-md-flex flex-column justify-content-between p-4" style="background: linear-gradient(160deg, #1d4e89 0%, #0d9488 100%); color:#fff;">
+                <div>
+                    <div class="mb-4" style="width:2.5rem;height:2.5rem;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+                        <i class="fa-solid fa-suitcase-rolling"></i>
                     </div>
-                    <h3 class="fw-bold text-dark">Create Account</h3>
-                    <p class="text-muted small">Sign up as a traveler or trip agent</p>
+                    <h4 style="font-family:'Fraunces',serif;color:#fff;font-size:1.35rem;line-height:1.25;">Join Trip Ease</h4>
+                    <p style="color:rgba(255,255,255,0.75);font-size:0.85rem;margin-top:0.75rem;">Create your traveler account and start exploring Sri Lanka's finest tour packages.</p>
                 </div>
-
-                <?php if ($message !== ""): ?>
-                    <div class="alert alert-warning border-0 shadow-sm rounded-3 d-flex align-items-center p-3 mb-4">
-                        <i class="fa-solid fa-triangle-exclamation me-3 fs-4 text-warning"></i>
-                        <div><?= htmlspecialchars($message) ?></div>
-                    </div>
-                <?php endif; ?>
-
-                <form method="post">
-                    <div class="mb-3">
-                        <label class="form-label small" for="register-role">Account type</label>
-                        <select class="form-select" id="register-role" name="role" required>
-                            <option value="traveler" selected>Traveler — browse and book trips</option>
-                            <option value="agent">Trip Agent — manage assigned packages</option>
-                        </select>
-                        <div class="form-text">Admin accounts are created by an existing admin only.</div>
+                <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);">© <?= date('Y') ?> Trip Ease</div>
+            </div>
+            <!-- Right form panel -->
+            <div class="col-md-8">
+                <div class="card-body p-4 p-md-5">
+                    <div class="mb-4">
+                        <h3 class="mb-1" style="font-size:1.5rem;font-weight:700;">Create account</h3>
+                        <p class="text-muted small mb-0">Sign up as a traveler — it's free</p>
                     </div>
 
-                    <div class="row g-3">
-                        <div class="col-md-6 mb-1">
-                            <label class="form-label small" for="register-name">Full Name</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-signature text-muted"></i></span>
-                                <input class="form-control border-start-0 ps-0" id="register-name" name="name" placeholder="John Doe" required>
-                            </div>
+                    <?php if ($message !== ""): ?>
+                        <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+                            <i class="fa-solid fa-triangle-exclamation flex-shrink-0"></i>
+                            <span><?= htmlspecialchars($message) ?></span>
                         </div>
-                        <div class="col-md-6 mb-1">
-                            <label class="form-label small" for="register-email">Email Address</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-envelope text-muted"></i></span>
-                                <input class="form-control border-start-0 ps-0" id="register-email" type="email" name="email" placeholder="john@example.com" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-1">
-                            <label class="form-label small" for="register-phone">Phone Number <span class="text-muted">(optional)</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
-                                <input class="form-control border-start-0 ps-0" id="register-phone" name="phone" placeholder="+123456789">
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label small" for="register-password">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-key text-muted"></i></span>
-                                <input class="form-control border-start-0 ps-0" id="register-password" type="password" name="password" placeholder="••••••••" required>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
 
-                    <button class="btn btn-primary w-100 py-2.5 mt-4 mb-3" type="submit">
-                        <i class="fa-solid fa-user-plus me-1"></i> Register Account
-                    </button>
-                    
-                    <div class="text-center">
-                        <span class="text-muted small">Already have an account?</span>
-                        <a class="small fw-semibold text-primary text-decoration-none ms-1" href="<?= htmlspecialchars(appUrl('/auth/login.php')) ?>">Login here</a>
-                    </div>
-                </form>
+                    <form method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="register-name">Full Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                    <input class="form-control" id="register-name" name="name" placeholder="John Doe" required autocomplete="name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="register-email">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                    <input class="form-control" id="register-email" type="email" name="email" placeholder="john@example.com" required autocomplete="email">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="register-phone">Phone <span class="text-muted fw-normal" style="text-transform:none;">(optional)</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                                    <input class="form-control" id="register-phone" name="phone" placeholder="+94 7X XXX XXXX" autocomplete="tel">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="register-password">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
+                                    <input class="form-control" id="register-password" type="password" name="password" placeholder="Min. 6 characters" required autocomplete="new-password">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-100 py-2 mt-4 mb-3" type="submit" style="font-size:0.95rem;">
+                            <i class="fa-solid fa-user-plus me-2"></i>Create Account
+                        </button>
+                        
+                        <div class="text-center">
+                            <span class="text-muted small">Already have an account?</span>
+                            <a class="small fw-semibold text-decoration-none ms-1" href="<?= htmlspecialchars(appUrl('/auth/login.php')) ?>" style="color:var(--primary);">Sign in</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

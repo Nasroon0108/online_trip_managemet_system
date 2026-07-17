@@ -43,33 +43,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-<div class="row justify-content-center">
-    <div class="col-lg-7">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="mb-3">Edit Destination</h3>
-                <?php if ($message !== ""): ?>
-                    <div class="alert alert-warning"><?= htmlspecialchars($message) ?></div>
-                <?php endif; ?>
-                <form method="post">
-                    <input type="hidden" name="destination_id" value="<?= (int)$destination["destination_id"] ?>">
-                    <div class="mb-3">
-                        <label class="form-label" for="destination-name">Name</label>
-                        <input class="form-control" id="destination-name" name="name" value="<?= htmlspecialchars($destination["name"]) ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="destination-country">Country</label>
-                        <input class="form-control" id="destination-country" name="country" value="<?= htmlspecialchars($destination["country"]) ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="destination-description">Description</label>
-                        <textarea class="form-control" id="destination-description" name="description" rows="4"><?= htmlspecialchars((string)($destination["description"] ?? "")) ?></textarea>
-                    </div>
-                    <button class="btn btn-primary" type="submit">Update Destination</button>
-                    <a class="btn btn-secondary" href="<?= htmlspecialchars(appUrl('/admin/destinations/list.php')) ?>">Back</a>
-                </form>
+<div class="page-header">
+    <div>
+        <h2>Edit destination</h2>
+        <p class="text-muted mb-0">Update destination details used across packages.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/admin/destinations/list.php')) ?>">Back</a>
+</div>
+
+<div class="card card-modern">
+    <div class="card-body p-4">
+        <?php if ($message !== ""): ?>
+            <div class="alert alert-warning border-0"><?= htmlspecialchars($message) ?></div>
+        <?php endif; ?>
+        <form method="post">
+            <input type="hidden" name="destination_id" value="<?= (int)$destination["destination_id"] ?>">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="destination-name">Name</label>
+                    <input class="form-control" id="destination-name" name="name" value="<?= htmlspecialchars($destination["name"]) ?>" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="destination-country">Country</label>
+                    <input class="form-control" id="destination-country" name="country" value="<?= htmlspecialchars($destination["country"]) ?>" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="destination-description">Description</label>
+                    <textarea class="form-control" id="destination-description" name="description" rows="4"><?= htmlspecialchars((string)($destination["description"] ?? "")) ?></textarea>
+                </div>
             </div>
-        </div>
+            <div class="mt-4">
+                <button class="btn btn-primary" type="submit">Update destination</button>
+            </div>
+        </form>
     </div>
 </div>
 

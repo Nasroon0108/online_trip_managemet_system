@@ -2,23 +2,17 @@
 declare(strict_types=1);
 require_once __DIR__ . "/../../config/db.php";
 require_once __DIR__ . "/../../includes/auth.php";
-requireStaff();
+requireAdmin();
 require_once __DIR__ . "/../../includes/header.php";
 
 const ADMIN_PACKAGES_PATH = "/admin/packages/list.php";
-const AGENT_PACKAGES_PATH = "/agent/packages.php";
 
 $packageId = (int)($_GET["package_id"] ?? $_POST["package_id"] ?? 0);
 if ($packageId <= 0) {
-    redirectTo(isAdmin() ? ADMIN_PACKAGES_PATH : AGENT_PACKAGES_PATH);
+    redirectTo(ADMIN_PACKAGES_PATH);
 }
 
-if (isAgent() && !agentCanAccessPackage($pdo, $packageId, (int)$_SESSION["user_id"])) {
-    setFlash("danger", "You are not assigned to this package.");
-    redirectTo(AGENT_PACKAGES_PATH);
-}
-
-$backPath = isAdmin() ? ADMIN_PACKAGES_PATH : AGENT_PACKAGES_PATH;
+$backPath = ADMIN_PACKAGES_PATH;
 
 $packageStmt = $pdo->prepare("SELECT package_id, title, duration_days FROM packages WHERE package_id = :id");
 $packageStmt->execute(["id" => $packageId]);
@@ -111,32 +105,32 @@ $itinerariesStmt->execute(["package_id" => $packageId]);
 $itineraries = $itinerariesStmt->fetchAll();
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="page-header">
     <div>
-        <h3 class="mb-1">Manage Itinerary</h3>
-        <p class="text-muted mb-0"><?= htmlspecialchars($package["title"]) ?></p>
+        <h2>Manage itinerary</h2>
+        <p class="text-muted mb-0"><?= htmlspecialchars($package["title"]) ?> · <?= (int)$package["duration_days"] ?> days</p>
     </div>
-    <a class="btn btn-secondary" href="<?= htmlspecialchars(appUrl($backPath)) ?>">Back to Packages</a>
+    <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl($backPath)) ?>">Back to packages</a>
 </div>
 
 <?php if ($message !== ""): ?>
-    <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
+    <div class="alert alert-info border-0"><?= htmlspecialchars($message) ?></div>
 <?php endif; ?>
 
 <div class="row g-4">
-    <div class="col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="mb-3"><?= $editItem ? "Edit Itinerary Item" : "Add Itinerary Item" ?></h5>
+    <div class="col-lg-4">
+        <div class="card card-modern">
+            <div class="card-body p-4">
+                <h5 class="mb-3"><?= $editItem ? "Edit itinerary item" : "Add itinerary item" ?></h5>
                 <form method="post">
                     <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
                     <input type="hidden" name="itinerary_id" value="<?= (int)($editItem["itinerary_id"] ?? 0) ?>">
                     <div class="mb-3">
-                        <label class="form-label" for="day-number">Day Number</label>
+                        <label class="form-label" for="day-number">Day number</label>
                         <input class="form-control" id="day-number" type="number" name="day_number" min="1" value="<?= htmlspecialchars((string)($editItem["day_number"] ?? "")) ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="activity-title">Activity Title</label>
+                        <label class="form-label" for="activity-title">Activity title</label>
                         <input class="form-control" id="activity-title" name="activity_title" value="<?= htmlspecialchars((string)($editItem["activity_title"] ?? "")) ?>" required>
                     </div>
                     <div class="mb-3">
@@ -151,7 +145,7 @@ $itineraries = $itinerariesStmt->fetchAll();
                         <label class="form-label" for="description">Description</label>
                         <textarea class="form-control" id="description" name="description" rows="4"><?= htmlspecialchars((string)($editItem["description"] ?? "")) ?></textarea>
                     </div>
-                    <button class="btn btn-primary" type="submit"><?= $editItem ? "Update Item" : "Add Item" ?></button>
+                    <button class="btn btn-primary" type="submit"><?= $editItem ? "Update item" : "Add item" ?></button>
                     <?php if ($editItem): ?>
                         <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/admin/itineraries/manage.php?package_id=' . (int)$package["package_id"])) ?>">Cancel</a>
                     <?php endif; ?>
@@ -160,45 +154,53 @@ $itineraries = $itinerariesStmt->fetchAll();
         </div>
     </div>
 
-    <div class="col-lg-7">
-        <div class="card shadow-sm">
-            <div class="table-responsive">
-                <table class="table table-striped mb-0">
-                    <thead>
-                        <tr>
-                            <th>Day</th>
-                            <th>Activity</th>
-                            <th>Time</th>
-                            <th>Location</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($itineraries as $item): ?>
-                        <tr>
-                            <td><?= (int)$item["day_number"] ?></td>
-                            <td>
-                                <div class="fw-semibold"><?= htmlspecialchars($item["activity_title"]) ?></div>
-                                <div class="small text-muted"><?= htmlspecialchars((string)($item["description"] ?? "")) ?></div>
-                            </td>
-                            <td><?= htmlspecialchars((string)($item["activity_time"] ?? "—")) ?></td>
-                            <td><?= htmlspecialchars((string)($item["location"] ?? "—")) ?></td>
-                            <td class="text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="<?= htmlspecialchars(appUrl('/admin/itineraries/manage.php?package_id=' . (int)$package["package_id"] . '&edit_id=' . (int)$item["itinerary_id"])) ?>">Edit</a>
-                                <form method="post" class="d-inline">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
-                                    <input type="hidden" name="itinerary_id" value="<?= (int)$item["itinerary_id"] ?>">
-                                    <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <?php if (!$itineraries): ?>
-                        <tr><td colspan="5" class="text-center text-muted py-3">No itinerary items yet.</td></tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
+    <div class="col-lg-8">
+        <div class="card card-modern card-panel">
+            <div class="card-body p-0">
+                <div class="panel-toolbar">
+                    <div>
+                        <h5 class="mb-0">Day-by-day plan</h5>
+                        <p class="text-muted small mb-0"><?= count($itineraries) ?> item<?= count($itineraries) === 1 ? "" : "s" ?></p>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-app align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Activity</th>
+                                <th>Time</th>
+                                <th>Location</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($itineraries as $item): ?>
+                            <tr>
+                                <td><span class="chip">Day <?= (int)$item["day_number"] ?></span></td>
+                                <td>
+                                    <div class="fw-semibold"><?= htmlspecialchars($item["activity_title"]) ?></div>
+                                    <div class="small text-muted"><?= htmlspecialchars((string)($item["description"] ?? "")) ?></div>
+                                </td>
+                                <td class="text-nowrap"><?= htmlspecialchars((string)($item["activity_time"] ?? "—")) ?></td>
+                                <td><?= htmlspecialchars((string)($item["location"] ?? "—")) ?></td>
+                                <td class="text-end text-nowrap">
+                                    <a class="btn btn-sm btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/admin/itineraries/manage.php?package_id=' . (int)$package["package_id"] . '&edit_id=' . (int)$item["itinerary_id"])) ?>">Edit</a>
+                                    <form method="post" class="d-inline">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="package_id" value="<?= (int)$package["package_id"] ?>">
+                                        <input type="hidden" name="itinerary_id" value="<?= (int)$item["itinerary_id"] ?>">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (!$itineraries): ?>
+                            <tr><td colspan="5" class="text-center text-muted py-5">No itinerary items yet.</td></tr>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

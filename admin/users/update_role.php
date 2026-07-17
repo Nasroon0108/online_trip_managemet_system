@@ -17,7 +17,7 @@ $role = $_POST["role"] ?? "";
 
 if ($userId > 0
     && $userId !== (int)$_SESSION["user_id"]
-    && in_array($role, ["traveler", "admin", "agent"], true)
+    && in_array($role, ["traveler", "admin"], true)
 ) {
     $stmt = $pdo->prepare("UPDATE users SET role = :role WHERE user_id = :user_id");
     $stmt->execute([

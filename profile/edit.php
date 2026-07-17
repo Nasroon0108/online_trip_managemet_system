@@ -61,79 +61,111 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 }
+
+$backHref = appUrl(dashboardPath());
 ?>
 
-<div class="row justify-content-center animate-slide-up">
-    <div class="col-lg-6">
-        <div class="card card-modern">
-            <div class="card-body p-4 p-md-5">
-                <div class="text-center mb-4">
-                    <div class="feature-icon-modern mb-2">
-                        <i class="fa-solid fa-user-gear"></i>
-                    </div>
-                    <h3 class="fw-bold text-dark">My Profile</h3>
-                    <p class="text-muted small">Update your personal account credentials and password</p>
-                </div>
+<div class="page-header">
+    <div>
+        <p class="page-kicker mb-1">Account</p>
+        <h2>Profile Settings</h2>
+        <p class="text-muted mb-0">Update your personal details and change your password.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="<?= htmlspecialchars($backHref) ?>">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to workspace
+    </a>
+</div>
 
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card card-modern">
+            <div class="panel-toolbar">
+                <div>
+                    <h5 class="mb-0"><i class="fa-solid fa-user me-2 text-primary" style="font-size:0.9rem;"></i>Personal Information</h5>
+                    <p class="text-muted small mb-0">Update your name and contact details</p>
+                </div>
+            </div>
+            <div class="card-body p-4">
                 <?php if ($message !== ""): ?>
-                    <div class="alert alert-warning border-0 shadow-sm rounded-3 d-flex align-items-center p-3 mb-4">
-                        <i class="fa-solid fa-triangle-exclamation me-3 fs-4 text-warning"></i>
-                        <div><?= htmlspecialchars($message) ?></div>
+                    <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span><?= htmlspecialchars($message) ?></span>
                     </div>
                 <?php endif; ?>
 
                 <form method="post">
-                    <div class="mb-3">
-                        <label class="form-label small" for="profile-name">Full Name</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-signature text-muted"></i></span>
-                            <input class="form-control border-start-0 ps-0" id="profile-name" name="name" value="<?= htmlspecialchars($user["name"]) ?>" required>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" for="profile-name">Full Name</label>
+                            <input class="form-control" id="profile-name" name="name" value="<?= htmlspecialchars($user["name"]) ?>" required>
                         </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label small" for="profile-email">Email Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-envelope text-muted"></i></span>
-                            <input class="form-control border-start-0 ps-0 bg-light" id="profile-email" type="email" value="<?= htmlspecialchars($user["email"]) ?>" disabled>
+                        <div class="col-md-6">
+                            <label class="form-label" for="profile-email">Email Address</label>
+                            <input class="form-control" id="profile-email" type="email" value="<?= htmlspecialchars($user["email"]) ?>" disabled>
+                            <div class="form-text"><i class="fa-solid fa-lock me-1"></i>Email cannot be changed.</div>
                         </div>
-                        <div class="form-text small text-muted"><i class="fa-solid fa-lock me-1"></i>Email address cannot be changed.</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label small" for="profile-phone">Phone Number</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
-                            <input class="form-control border-start-0 ps-0" id="profile-phone" name="phone" value="<?= htmlspecialchars((string)($user["phone"] ?? "")) ?>">
+                        <div class="col-md-6">
+                            <label class="form-label" for="profile-phone">Phone Number</label>
+                            <input class="form-control" id="profile-phone" name="phone" value="<?= htmlspecialchars((string)($user["phone"] ?? "")) ?>" placeholder="e.g. 0712345678">
                         </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label small" for="profile-role">Account Role</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-shield text-muted"></i></span>
-                            <input class="form-control border-start-0 ps-0 bg-light" id="profile-role" value="<?= ucfirst(htmlspecialchars($user["role"])) ?>" disabled>
+                        <div class="col-md-6">
+                            <label class="form-label" for="profile-role">Role</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-shield-halved"></i></span>
+                                <input class="form-control" id="profile-role" value="<?= htmlspecialchars(ucfirst($user["role"])) ?>" disabled>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="p-3 bg-light rounded-3 mb-4 border border-light">
-                        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-key me-2 text-muted"></i>Change Password</h5>
-                        
-                        <div class="mb-3">
-                            <label class="form-label small" for="current-password">Current Password</label>
-                            <input class="form-control bg-white" id="current-password" type="password" name="current_password" placeholder="Enter current password">
+                    <hr>
+
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="stat-icon" style="width:2rem;height:2rem;font-size:0.8rem;flex-shrink:0;">
+                            <i class="fa-solid fa-key"></i>
                         </div>
-                        
-                        <div class="mb-0">
-                            <label class="form-label small" for="new-password">New Password</label>
-                            <input class="form-control bg-white" id="new-password" type="password" name="new_password" placeholder="Enter new password (min. 6 chars)">
+                        <div>
+                            <h5 class="mb-0">Change Password</h5>
+                            <p class="text-muted small mb-0">Leave blank to keep your current password</p>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" for="current-password">Current Password</label>
+                            <input class="form-control" id="current-password" type="password" name="current_password" autocomplete="current-password" placeholder="Enter current password">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="new-password">New Password</label>
+                            <input class="form-control" id="new-password" type="password" name="new_password" autocomplete="new-password" placeholder="Minimum 6 characters">
                         </div>
                     </div>
 
-                    <button class="btn btn-primary w-100 py-2.5" type="submit">
-                        <i class="fa-solid fa-floppy-disk me-1"></i> Save Profile Details
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary px-4" type="submit">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                        </button>
+                        <a class="btn btn-outline-secondary" href="<?= htmlspecialchars($backHref) ?>">Cancel</a>
+                    </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card card-modern">
+            <div class="card-body p-4 text-center">
+                <div class="avatar-circle mx-auto mb-3" style="width:4.5rem;height:4.5rem;font-size:1.75rem;">
+                    <?= strtoupper(substr($user["name"], 0, 1)) ?>
+                </div>
+                <h5 class="mb-1"><?= htmlspecialchars($user["name"]) ?></h5>
+                <p class="text-muted small mb-2"><?= htmlspecialchars($user["email"]) ?></p>
+                <span class="badge badge-role badge-role-<?= htmlspecialchars($user["role"]) ?> px-3 py-2">
+                    <?= htmlspecialchars(ucfirst($user["role"])) ?>
+                </span>
+                <?php if ($user["phone"] ?? ""): ?>
+                    <div class="mt-3 pt-3 border-top text-muted small">
+                        <i class="fa-solid fa-phone me-1"></i><?= htmlspecialchars((string)$user["phone"]) ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
