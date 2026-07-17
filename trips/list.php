@@ -80,9 +80,16 @@ require_once __DIR__ . "/../includes/header.php";
             <?php endif; ?>
         </p>
     </div>
-    <?php if (isAdmin()): ?>
-        <a class="btn btn-primary" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">Manage packages</a>
-    <?php endif; ?>
+    <div class="d-flex gap-2 flex-wrap">
+        <?php if (isTraveler()): ?>
+            <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/dashboard/index.php')) ?>">
+                <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+            </a>
+        <?php endif; ?>
+        <?php if (isAdmin()): ?>
+            <a class="btn btn-primary" href="<?= htmlspecialchars(appUrl('/admin/packages/list.php')) ?>">Manage packages</a>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php if ($isStaffPreview): ?>

@@ -39,9 +39,14 @@ $bookings = $stmt->fetchAll();
         <h2>My Bookings</h2>
         <p class="text-muted mb-0">Track booked itineraries, payments, and trip statuses</p>
     </div>
-    <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/bookings/paid.php')) ?>">
-        <i class="fa-solid fa-wallet me-1"></i>Paid bookings
-    </a>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/dashboard/index.php')) ?>">
+            <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+        </a>
+        <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/bookings/paid.php')) ?>">
+            <i class="fa-solid fa-wallet me-1"></i> Paid Bookings
+        </a>
+    </div>
 </div>
 
 <div class="card card-modern card-panel animate-slide-up">

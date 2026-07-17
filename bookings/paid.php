@@ -46,8 +46,12 @@ foreach ($bookings as $row) {
         <h2>Paid Bookings</h2>
         <p class="text-muted mb-0">Trips with successful sandbox payments · <strong>Rs. <?= number_format($totalPaid, 2) ?></strong> total</p>
     </div>
-    <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/bookings/my_bookings.php')) ?>">
-        <i class="fa-solid fa-list me-1"></i>All bookings
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/dashboard/index.php')) ?>">
+            <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+        </a>
+        <a class="btn btn-outline-secondary" href="<?= htmlspecialchars(appUrl('/bookings/my_bookings.php')) ?>">
+            <i class="fa-solid fa-list me-1"></i> All Bookings
     </a>
 </div>
 
