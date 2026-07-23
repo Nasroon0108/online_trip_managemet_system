@@ -34,7 +34,8 @@ require_once __DIR__ . "/../includes/header.php";
 <div class="container py-5">
 <div class="row justify-content-center align-items-center animate-slide-up" style="min-height: 72vh;">
     <div class="col-md-10 col-lg-8 col-xl-6">
-        <div class="row g-0 card card-modern overflow-hidden" style="border-radius: 20px !important;">
+        <div class="card card-modern overflow-hidden" style="border-radius: 20px !important;">
+          <div class="row g-0">
             <!-- Left decorative panel -->
             <div class="col-md-5 d-none d-md-flex flex-column justify-content-between p-4" style="background: linear-gradient(160deg, #0d9488 0%, #0f766e 50%, #134e4a 100%); color:#fff;">
                 <div>
@@ -89,6 +90,7 @@ require_once __DIR__ . "/../includes/header.php";
                     </form>
                 </div>
             </div>
+          </div>
         </div>
     </div>
 </div>
